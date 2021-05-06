@@ -50,6 +50,10 @@ class GreaselionDownloadService;
 #endif
 }  // namespace greaselion
 
+namespace debounce {
+class DebounceDownloadService;
+}  // namespace debounce
+
 namespace ntp_background_images {
 class NTPBackgroundImagesService;
 }  // namespace ntp_background_images
@@ -96,6 +100,7 @@ class BraveBrowserProcessImpl : public BraveBrowserProcess,
 #if BUILDFLAG(ENABLE_GREASELION)
   greaselion::GreaselionDownloadService* greaselion_download_service() override;
 #endif
+  debounce::DebounceDownloadService* debounce_download_service() override;
   brave_shields::HTTPSEverywhereService* https_everywhere_service() override;
   brave_component_updater::LocalDataFilesService* local_data_files_service()
       override;
@@ -149,6 +154,7 @@ class BraveBrowserProcessImpl : public BraveBrowserProcess,
   std::unique_ptr<greaselion::GreaselionDownloadService>
       greaselion_download_service_;
 #endif
+  std::unique_ptr<debounce::DebounceDownloadService> debounce_download_service_;
   std::unique_ptr<brave_shields::HTTPSEverywhereService>
       https_everywhere_service_;
   std::unique_ptr<brave_stats::BraveStatsUpdater> brave_stats_updater_;

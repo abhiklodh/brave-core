@@ -29,6 +29,7 @@
 #include "brave/components/brave_shields/browser/ad_block_service.h"
 #include "brave/components/brave_shields/browser/https_everywhere_service.h"
 #include "brave/components/brave_sync/network_time_helper.h"
+#include "brave/components/debounce/browser/debounce_download_service.h"
 #include "brave/components/ntp_background_images/browser/features.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_service.h"
 #include "brave/components/p3a/brave_p3a_service.h"
@@ -47,8 +48,8 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
 #if BUILDFLAG(ENABLE_SYSTEM_NOTIFICATIONS)
-#include "chrome/browser/notifications/notification_platform_bridge.h"
 #include "brave/browser/notifications/brave_notification_platform_bridge.h"
+#include "chrome/browser/notifications/notification_platform_bridge.h"
 #endif
 
 #if BUILDFLAG(ENABLE_BRAVE_REFERRALS)
@@ -86,8 +87,8 @@
 #endif
 
 using brave_component_updater::BraveComponent;
-using ntp_background_images::features::kBraveNTPBrandedWallpaper;
 using ntp_background_images::NTPBackgroundImagesService;
+using ntp_background_images::features::kBraveNTPBrandedWallpaper;
 
 namespace {
 
@@ -135,8 +136,8 @@ void BraveBrowserProcessImpl::Init() {
   content::ChildProcessSecurityPolicy::GetInstance()->RegisterWebSafeScheme(
       ipfs::kIPNSScheme);
 #endif
-  brave_component_updater::BraveOnDemandUpdater::GetInstance()->
-      RegisterOnDemandUpdateCallback(
+  brave_component_updater::BraveOnDemandUpdater::GetInstance()
+      ->RegisterOnDemandUpdateCallback(
           base::BindRepeating(&component_updater::BraveOnDemandUpdate));
   UpdateBraveDarkMode();
   pref_change_registrar_.Add(
@@ -184,14 +185,15 @@ void BraveBrowserProcessImpl::StartBraveServices() {
 #if BUILDFLAG(ENABLE_GREASELION)
   greaselion_download_service();
 #endif
+  debounce_download_service();
 #if BUILDFLAG(ENABLE_SPEEDREADER)
   speedreader_rewriter_service();
 #endif
   // Now start the local data files service, which calls all observers.
   local_data_files_service()->Start();
 
-  brave_sync::NetworkTimeHelper::GetInstance()
-    ->SetNetworkTimeTracker(g_browser_process->network_time_tracker());
+  brave_sync::NetworkTimeHelper::GetInstance()->SetNetworkTimeTracker(
+      g_browser_process->network_time_tracker());
 }
 
 brave_shields::AdBlockService* BraveBrowserProcessImpl::ad_block_service() {
@@ -251,6 +253,16 @@ BraveBrowserProcessImpl::greaselion_download_service() {
 }
 #endif
 
+debounce::DebounceDownloadService*
+BraveBrowserProcessImpl::debounce_download_service() {
+  if (!debounce_download_service_) {
+    debounce_download_service_ =
+        std::make_unique<debounce::DebounceDownloadService>(
+            local_data_files_service());
+  }
+  return debounce_download_service_.get();
+}
+
 brave_shields::HTTPSEverywhereService*
 BraveBrowserProcessImpl::https_everywhere_service() {
   if (!https_everywhere_service_)
@@ -279,8 +291,7 @@ void BraveBrowserProcessImpl::OnBraveDarkModeChanged() {
 }
 
 #if BUILDFLAG(ENABLE_TOR)
-tor::BraveTorClientUpdater*
-BraveBrowserProcessImpl::tor_client_updater() {
+tor::BraveTorClientUpdater* BraveBrowserProcessImpl::tor_client_updater() {
   if (tor_client_updater_)
     return tor_client_updater_.get();
 
@@ -296,7 +307,8 @@ void BraveBrowserProcessImpl::OnTorEnabledChanged() {
   // Update all browsers' tor command status.
   for (Browser* browser : *BrowserList::GetInstance()) {
     static_cast<chrome::BraveBrowserCommandController*>(
-        browser->command_controller())->UpdateCommandForTor();
+        browser->command_controller())
+        ->UpdateCommandForTor();
   }
 }
 #endif
@@ -394,8 +406,7 @@ BraveBrowserProcessImpl::speedreader_rewriter_service() {
 #endif  // BUILDFLAG(ENABLE_SPEEDREADER)
 
 #if BUILDFLAG(ENABLE_IPFS)
-ipfs::BraveIpfsClientUpdater*
-BraveBrowserProcessImpl::ipfs_client_updater() {
+ipfs::BraveIpfsClientUpdater* BraveBrowserProcessImpl::ipfs_client_updater() {
   if (ipfs_client_updater_)
     return ipfs_client_updater_.get();
 
