@@ -40,37 +40,48 @@ DebounceThrottle::~DebounceThrottle() = default;
 
 void DebounceThrottle::WillStartRequest(network::ResourceRequest* request,
                                         bool* defer) {
-  if (!brave_shields::ShouldDoDebouncing(host_content_settings_map_,
-                                         request->url))
-    return;
-
   GURL debounced_url;
-
   // Call debounce service to try to debounce this URL based on available rules.
   // Returns false if no rules apply.
-  if (!debounce_service_->Debounce(request->url, request->site_for_cookies,
-                                   &debounced_url))
+  if (!brave_shields::ShouldDoDebouncing(host_content_settings_map_,
+                                         request->url) ||
+      !debounce_service_->Debounce(request->url, &debounced_url))
     return;
 
   VLOG(1) << "Debouncing rule applied: " << request->url << " -> "
           << debounced_url;
+  url::Origin original_origin = url::Origin::Create(request->url);
+  url::Origin debounced_origin = url::Origin::Create(debounced_url);
   request->url = debounced_url;
 
-  // Check if we're debouncing to a different site (where "different" is defined
-  // as "has different first-party cookies"). If so, we need to reinitialize
+  // If we're debouncing to a different site, we need to reinitialize
   // the trusted params for the new origin and restart the request.
-  if (!request->site_for_cookies.IsEquivalent(
-          net::SiteForCookies::FromUrl(debounced_url))) {
-    url::Origin debounced_site_for_cookies_origin =
-        url::Origin::Create(debounced_url);
-    request->request_initiator = debounced_site_for_cookies_origin;
+  if (!original_origin.IsSameOriginWith(debounced_origin)) {
+    request->request_initiator = debounced_origin;
     request->trusted_params = network::ResourceRequest::TrustedParams();
     request->trusted_params->isolation_info = net::IsolationInfo::Create(
-        net::IsolationInfo::RequestType::kOther,
-        debounced_site_for_cookies_origin, debounced_site_for_cookies_origin,
-        net::SiteForCookies::FromOrigin(debounced_site_for_cookies_origin));
+        net::IsolationInfo::RequestType::kOther, debounced_origin,
+        debounced_origin, net::SiteForCookies::FromOrigin(debounced_origin));
   }
   delegate_->RestartWithFlags(/* additional_load_flags */ 0);
+}
+
+void DebounceThrottle::WillRedirectRequest(
+    net::RedirectInfo* redirect_info,
+    const network::mojom::URLResponseHead& response_head,
+    bool* defer,
+    std::vector<std::string>* to_be_removed_request_headers,
+    net::HttpRequestHeaders* modified_request_headers,
+    net::HttpRequestHeaders* modified_cors_exempt_request_headers) {
+  GURL debounced_url;
+  if (!brave_shields::ShouldDoDebouncing(host_content_settings_map_,
+                                         redirect_info->new_url) ||
+      !debounce_service_->Debounce(redirect_info->new_url, &debounced_url))
+    return;
+
+  VLOG(1) << "Debouncing rule applied: " << redirect_info->new_url << " -> "
+          << debounced_url;
+  redirect_info->new_url = debounced_url;
 }
 
 }  // namespace debounce

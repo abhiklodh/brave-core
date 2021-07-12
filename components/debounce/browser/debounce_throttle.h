@@ -34,6 +34,13 @@ class DebounceThrottle : public blink::URLLoaderThrottle {
   // Implements blink::URLLoaderThrottle.
   void WillStartRequest(network::ResourceRequest* request,
                         bool* defer) override;
+  void WillRedirectRequest(
+      net::RedirectInfo* redirect_info,
+      const network::mojom::URLResponseHead& response_head,
+      bool* defer,
+      std::vector<std::string>* to_be_removed_request_headers,
+      net::HttpRequestHeaders* modified_request_headers,
+      net::HttpRequestHeaders* modified_cors_exempt_request_headers) override;
 
  private:
   DebounceService* debounce_service_ = nullptr;                  // not owned

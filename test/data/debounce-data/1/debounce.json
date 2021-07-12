@@ -1,20 +1,20 @@
 [
   {
     "include": [
-      "http://sub.a.com/navigate-to-site.html?url=*"
+      "http://simple.a.com/?url=*"
+    ],
+    "exclude": [
+    ],
+    "action": "redirect",
+    "param": "url"
+  },
+  {
+    "include": [
+      "http://base64.a.com/?url=*"
     ],
     "exclude": [
     ],
     "action": "base64,redirect",
     "param": "url"
-  },
-  {
-    "include": [
-      "<all_urls>"
-    ],
-    "exclude": [
-    ],
-    "action": "remove",
-    "param": "fbclid"
   }
 ]

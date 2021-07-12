@@ -8,7 +8,6 @@
 
 #include "base/macros.h"
 #include "components/keyed_service/core/keyed_service.h"
-#include "net/cookies/site_for_cookies.h"
 #include "url/gurl.h"
 
 namespace debounce {
@@ -16,9 +15,7 @@ namespace debounce {
 class DebounceService : public KeyedService {
  public:
   DebounceService() = default;
-  virtual bool Debounce(const GURL& original_url,
-                        const net::SiteForCookies& original_site_for_cookies,
-                        GURL* final_url) = 0;
+  virtual bool Debounce(const GURL& original_url, GURL* final_url) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DebounceService);

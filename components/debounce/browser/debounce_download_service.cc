@@ -8,7 +8,7 @@
 #include <memory>
 #include <utility>
 
-#include "base/base64.h"
+#include "base/base64url.h"
 #include "base/base_paths.h"
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -20,6 +20,7 @@
 #include "brave/components/brave_component_updater/browser/local_data_files_service.h"
 #include "net/base/escape.h"
 #include "net/base/url_util.h"
+#include "url/origin.h"
 #include "url/url_util.h"
 
 using brave_component_updater::LocalDataFilesObserver;
@@ -35,7 +36,9 @@ const char kExclude[] = "exclude";
 const char kAction[] = "action";
 const char kParam[] = "param";
 
-DebounceRule::DebounceRule() = default;
+DebounceRule::DebounceRule() {
+  clear();
+}
 
 DebounceRule::~DebounceRule() = default;
 
@@ -46,45 +49,48 @@ void DebounceRule::clear() {
   param_ = "";
 }
 
-void DebounceRule::Parse(base::ListValue* include_value,
-                         base::ListValue* exclude_value,
-                         const std::string& action,
-                         const std::string& param,
-                         std::vector<std::string>* hosts) {
-  clear();
-  std::string error;
+bool DebounceRule::ParseDebounceAction(base::StringPiece value,
+                                       DebounceAction* field) {
+  if (value == "redirect")
+    *field = kDebounceRedirectToParam;
+  else if (value == "base64,redirect")
+    *field = kDebounceBase64DecodeAndRedirectToParam;
+  else
+    *field = kDebounceNoAction;
+  return true;
+}
 
+bool DebounceRule::GetURLPatternSetFromValue(
+    const base::Value* value,
+    extensions::URLPatternSet* result) {
   // Debouncing only affects HTTP or HTTPS URLs, regardless of how the rules are
   // written. (Also, don't write rules for other URL schemes, because they won't
   // work and you're just wasting everyone's time.)
   int valid_schemes = URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS;
-  if (!include_pattern_set_.Populate(*include_value, valid_schemes, false,
-                                     &error) ||
-      !exclude_pattern_set_.Populate(*exclude_value, valid_schemes, false,
-                                     &error)) {
+  std::string error;
+  const base::ListValue* list_value;
+  value->GetAsList(&list_value);
+  bool valid = result->Populate(*list_value, valid_schemes, false, &error);
+  if (!valid)
     LOG(ERROR) << error;
-    clear();
-    return;
-  }
-  if (action == "redirect")
-    action_ = kDebounceRedirectToParam;
-  else if (action == "base64,redirect")
-    action_ = kDebounceBase64DecodeAndRedirectToParam;
-  param_ = param;
-  for (const URLPattern& pattern : include_pattern_set_) {
-    if (!pattern.host().empty()) {
-      hosts->push_back(pattern.host());
-    }
-  }
+  return valid;
 }
 
-bool DebounceRule::Apply(const GURL& original_url,
-                         const net::SiteForCookies& original_site_for_cookies,
-                         GURL* final_url) {
+void DebounceRule::RegisterJSONConverter(
+    base::JSONValueConverter<DebounceRule>* converter) {
+  converter->RegisterCustomValueField<extensions::URLPatternSet>(
+      kInclude, &DebounceRule::include_pattern_set_, GetURLPatternSetFromValue);
+  converter->RegisterCustomValueField<extensions::URLPatternSet>(
+      kExclude, &DebounceRule::exclude_pattern_set_, GetURLPatternSetFromValue);
+  converter->RegisterCustomField<DebounceAction>(
+      kAction, &DebounceRule::action_, &ParseDebounceAction);
+  converter->RegisterStringField(kParam, &DebounceRule::param_);
+}
+
+bool DebounceRule::Apply(const GURL& original_url, GURL* final_url) {
   // If URL matches an explicitly excluded pattern, this rule does not apply.
   if (exclude_pattern_set_.MatchesURL(original_url))
     return false;
-
   // If URL does not match an explicitly included pattern, this rule does not
   // apply.
   if (!include_pattern_set_.MatchesURL(original_url))
@@ -98,7 +104,9 @@ bool DebounceRule::Apply(const GURL& original_url,
     GURL new_url;
     if (action_ == kDebounceBase64DecodeAndRedirectToParam) {
       std::string base64_decoded_value;
-      if (!base::Base64Decode(unescaped_value, &base64_decoded_value))
+      if (!base::Base64UrlDecode(unescaped_value,
+                                 base::Base64UrlDecodePolicy::IGNORE_PADDING,
+                                 &base64_decoded_value))
         return false;
       new_url = GURL(base64_decoded_value);
     } else {
@@ -110,8 +118,9 @@ bool DebounceRule::Apply(const GURL& original_url,
       return false;
 
     // Failsafe: never redirect to the same site.
-    if (original_site_for_cookies.IsEquivalent(
-            net::SiteForCookies::FromUrl(new_url)))
+    url::Origin original_origin = url::Origin::Create(original_url);
+    url::Origin debounced_origin = url::Origin::Create(new_url);
+    if (original_origin.IsSameOriginWith(debounced_origin))
       return false;
 
     *final_url = new_url;
@@ -155,20 +164,15 @@ void DebounceDownloadService::OnDATFileDataReady(std::string contents) {
   base::ListValue* root_list = nullptr;
   root->GetAsList(&root_list);
   std::vector<std::string> hosts;
-  for (base::Value& rule_it : root_list->GetList()) {
-    base::DictionaryValue* rule_dict = nullptr;
-    rule_it.GetAsDictionary(&rule_dict);
-    base::ListValue* include_value = nullptr;
-    rule_dict->GetList(kInclude, &include_value);
-    base::ListValue* exclude_value = nullptr;
-    rule_dict->GetList(kExclude, &exclude_value);
-    const std::string* action_ptr = rule_it.FindStringPath(kAction);
-    const std::string action_value = action_ptr ? *action_ptr : "";
-    const std::string* param_ptr = rule_it.FindStringPath(kParam);
-    const std::string param_value = param_ptr ? *param_ptr : "";
+  for (base::Value& it : root_list->GetList()) {
     std::unique_ptr<DebounceRule> rule = std::make_unique<DebounceRule>();
-    rule->Parse(include_value, exclude_value, action_value, param_value,
-                &hosts);
+    base::JSONValueConverter<DebounceRule> converter;
+    converter.Convert(it, rule.get());
+    for (const URLPattern& pattern : rule->include_pattern_set_) {
+      if (!pattern.host().empty()) {
+        hosts.push_back(pattern.host());
+      }
+    }
     rules_.push_back(std::move(rule));
   }
   host_cache_ = std::move(hosts);

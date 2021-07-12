@@ -22,9 +22,7 @@ class DebounceServiceImpl : public DebounceService {
   ~DebounceServiceImpl() override;
 
   // DebounceService overrides
-  bool Debounce(const GURL& original_url,
-                const net::SiteForCookies& original_site_for_cookies,
-                GURL* final_url) override;
+  bool Debounce(const GURL& original_url, GURL* final_url) override;
 
  private:
   DebounceDownloadService* download_service_;  // NOT OWNED

@@ -12,6 +12,7 @@
 
 #include "base/containers/flat_set.h"
 #include "base/files/file_path.h"
+#include "base/json/json_value_converter.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "base/sequence_checker.h"
@@ -19,7 +20,6 @@
 #include "brave/components/brave_component_updater/browser/local_data_files_observer.h"
 #include "brave/components/debounce/browser/debounce_service.h"
 #include "extensions/common/url_pattern_set.h"
-#include "net/cookies/site_for_cookies.h"
 #include "url/gurl.h"
 
 class DebounceBrowserTest;
@@ -43,16 +43,17 @@ class DebounceRule {
   DebounceRule();
   ~DebounceRule();
 
-  void Parse(base::ListValue* include_value,
-             base::ListValue* exclude_value,
-             const std::string& action,
-             const std::string& param,
-             std::vector<std::string>* hosts);
-  bool Apply(const GURL& original_url,
-             const net::SiteForCookies& original_site_for_cookies,
-             GURL* final_url);
+  // Registers the mapping between JSON field names and the members in this
+  // class.
+  static void RegisterJSONConverter(
+      base::JSONValueConverter<DebounceRule>* converter);
+  static bool ParseDebounceAction(base::StringPiece value,
+                                  DebounceAction* field);
+  static bool GetURLPatternSetFromValue(const base::Value* value,
+                                        extensions::URLPatternSet* result);
 
- private:
+  bool Apply(const GURL& original_url,
+             GURL* final_url);
   void clear();
 
   extensions::URLPatternSet include_pattern_set_;
