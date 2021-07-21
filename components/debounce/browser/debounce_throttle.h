@@ -7,6 +7,8 @@
 #define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_THROTTLE_H_
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "base/memory/weak_ptr.h"
 #include "services/network/public/mojom/url_response_head.mojom-forward.h"

@@ -6,6 +6,8 @@
 #include "brave/components/debounce/browser/debounce_throttle.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "base/feature_list.h"
 #include "brave/components/brave_shields/browser/brave_shields_util.h"

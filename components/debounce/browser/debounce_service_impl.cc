@@ -6,6 +6,7 @@
 #include "brave/components/debounce/browser/debounce_service_impl.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "base/containers/contains.h"
