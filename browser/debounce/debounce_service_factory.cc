@@ -42,9 +42,7 @@ KeyedService* DebounceServiceFactory::BuildServiceInstanceFor(
   // test.
   if (g_brave_browser_process)
     download_service = g_brave_browser_process->debounce_download_service();
-  std::unique_ptr<DebounceServiceImpl> debounce_service(
-      new DebounceServiceImpl(download_service));
-  return debounce_service.release();
+  return new DebounceServiceImpl(download_service);
 }
 
 bool DebounceServiceFactory::ServiceIsNULLWhileTesting() const {

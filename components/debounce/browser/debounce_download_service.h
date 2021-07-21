@@ -68,6 +68,8 @@ class DebounceDownloadService : public LocalDataFilesObserver {
  public:
   explicit DebounceDownloadService(
       LocalDataFilesService* local_data_files_service);
+  DebounceDownloadService(const DebounceDownloadService&) = delete;
+  DebounceDownloadService& operator=(const DebounceDownloadService&) = delete;
   ~DebounceDownloadService() override;
 
   std::vector<std::unique_ptr<DebounceRule>>* rules();
@@ -101,7 +103,6 @@ class DebounceDownloadService : public LocalDataFilesObserver {
   base::FilePath resource_dir_;
 
   base::WeakPtrFactory<DebounceDownloadService> weak_factory_;
-  DISALLOW_COPY_AND_ASSIGN(DebounceDownloadService);
 };
 
 }  // namespace debounce

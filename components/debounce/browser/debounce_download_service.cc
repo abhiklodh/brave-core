@@ -51,12 +51,14 @@ void DebounceRule::clear() {
 
 bool DebounceRule::ParseDebounceAction(base::StringPiece value,
                                        DebounceAction* field) {
-  if (value == "redirect")
+  if (value == "redirect") {
     *field = kDebounceRedirectToParam;
-  else if (value == "base64,redirect")
+  } else if (value == "base64,redirect") {
     *field = kDebounceBase64DecodeAndRedirectToParam;
-  else
+  } else {
+    LOG(INFO) << "Found unknown debouncing action: " << value;
     *field = kDebounceNoAction;
+  }
   return true;
 }
 
@@ -68,9 +70,18 @@ bool DebounceRule::GetURLPatternSetFromValue(
   // work and you're just wasting everyone's time.)
   int valid_schemes = URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS;
   std::string error;
-  const base::ListValue* list_value;
-  value->GetAsList(&list_value);
-  bool valid = result->Populate(*list_value, valid_schemes, false, &error);
+  if (!value->is_list())
+    return false;
+  auto pattern_list = value->GetList();
+  std::vector<std::string> patterns;
+  for (auto& pattern_value : pattern_list)
+  if (pattern_value.is_string()) {
+    std::string pattern = pattern_value.GetString();
+    patterns.push_back(pattern);
+  } else {
+    LOG(ERROR) << "Found non-string pattern in debounce configuration";
+  }
+  bool valid = result->Populate(patterns, valid_schemes, false, &error);
   if (!valid)
     LOG(ERROR) << error;
   return valid;

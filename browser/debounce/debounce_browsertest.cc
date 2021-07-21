@@ -11,12 +11,8 @@
 #include "brave/common/brave_paths.h"
 #include "brave/components/brave_shields/browser/brave_shields_util.h"
 #include "brave/components/debounce/browser/debounce_download_service.h"
-#include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-#include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/browser.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/ui_test_utils.h"
-#include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_utils.h"
@@ -36,6 +32,8 @@ class DebounceDownloadServiceWaiter : public DebounceDownloadService::Observer {
       : download_service_(download_service), scoped_observer_(this) {
     scoped_observer_.Add(download_service_);
   }
+  DebounceDownloadServiceWaiter(const DebounceDownloadServiceWaiter&) = delete;
+  DebounceDownloadServiceWaiter& operator=(const DebounceDownloadServiceWaiter&) = delete;
   ~DebounceDownloadServiceWaiter() override = default;
 
   void Wait() { run_loop_.Run(); }
@@ -50,8 +48,6 @@ class DebounceDownloadServiceWaiter : public DebounceDownloadService::Observer {
   base::RunLoop run_loop_;
   ScopedObserver<DebounceDownloadService, DebounceDownloadService::Observer>
       scoped_observer_;
-
-  DISALLOW_COPY_AND_ASSIGN(DebounceDownloadServiceWaiter);
 };
 
 class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
@@ -73,10 +69,6 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
     debounce::DebounceDownloadService* download_service =
         g_brave_browser_process->debounce_download_service();
     DebounceDownloadServiceWaiter(download_service).Wait();
-  }
-
-  HostContentSettingsMap* content_settings() {
-    return HostContentSettingsMapFactory::GetForProfile(browser()->profile());
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {

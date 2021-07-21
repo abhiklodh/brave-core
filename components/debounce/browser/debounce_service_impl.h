@@ -6,7 +6,6 @@
 #ifndef BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_IMPL_H_
 #define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_IMPL_H_
 
-#include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "brave/components/debounce/browser/debounce_service.h"
 #include "net/cookies/site_for_cookies.h"
@@ -19,6 +18,8 @@ class DebounceDownloadService;
 class DebounceServiceImpl : public DebounceService {
  public:
   explicit DebounceServiceImpl(DebounceDownloadService* download_service);
+  DebounceServiceImpl(const DebounceServiceImpl&) = delete;
+  DebounceServiceImpl& operator=(const DebounceServiceImpl&) = delete;
   ~DebounceServiceImpl() override;
 
   // DebounceService overrides
@@ -27,8 +28,6 @@ class DebounceServiceImpl : public DebounceService {
  private:
   DebounceDownloadService* download_service_;  // NOT OWNED
   base::WeakPtrFactory<DebounceServiceImpl> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(DebounceServiceImpl);
 };
 
 }  // namespace debounce

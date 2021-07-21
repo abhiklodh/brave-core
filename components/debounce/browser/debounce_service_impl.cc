@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include "base/containers/contains.h"
 #include "base/containers/flat_set.h"
 #include "base/logging.h"
 #include "brave/components/debounce/browser/debounce_download_service.h"
@@ -27,7 +28,7 @@ bool DebounceServiceImpl::Debounce(
   // Check host cache to see if this URL needs to have any debounce rules
   // applied.
   base::flat_set<std::string>* host_cache = download_service_->host_cache();
-  if (host_cache->find(original_url.host()) == host_cache->end())
+  if (!base::Contains(*host_cache, original_url.host()))
     return false;
 
   bool changed = false;

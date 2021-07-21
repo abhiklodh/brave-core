@@ -15,10 +15,9 @@ namespace debounce {
 class DebounceService : public KeyedService {
  public:
   DebounceService() = default;
+  DebounceService(const DebounceService&) = delete;
+  DebounceService& operator=(const DebounceService&) = delete;
   virtual bool Debounce(const GURL& original_url, GURL* final_url) = 0;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(DebounceService);
 };
 
 }  // namespace debounce
