@@ -75,12 +75,12 @@ bool DebounceRule::GetURLPatternSetFromValue(
   auto pattern_list = value->GetList();
   std::vector<std::string> patterns;
   for (auto& pattern_value : pattern_list)
-  if (pattern_value.is_string()) {
-    std::string pattern = pattern_value.GetString();
-    patterns.push_back(pattern);
-  } else {
-    LOG(ERROR) << "Found non-string pattern in debounce configuration";
-  }
+    if (pattern_value.is_string()) {
+      std::string pattern = pattern_value.GetString();
+      patterns.push_back(pattern);
+    } else {
+      LOG(ERROR) << "Found non-string pattern in debounce configuration";
+    }
   bool valid = result->Populate(patterns, valid_schemes, false, &error);
   if (!valid)
     LOG(ERROR) << error;

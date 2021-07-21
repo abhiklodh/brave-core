@@ -22,9 +22,7 @@ DebounceServiceImpl::DebounceServiceImpl(
 
 DebounceServiceImpl::~DebounceServiceImpl() {}
 
-bool DebounceServiceImpl::Debounce(
-    const GURL& original_url,
-    GURL* final_url) {
+bool DebounceServiceImpl::Debounce(const GURL& original_url, GURL* final_url) {
   // Check host cache to see if this URL needs to have any debounce rules
   // applied.
   base::flat_set<std::string>* host_cache = download_service_->host_cache();

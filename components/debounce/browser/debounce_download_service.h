@@ -52,8 +52,7 @@ class DebounceRule {
   static bool GetURLPatternSetFromValue(const base::Value* value,
                                         extensions::URLPatternSet* result);
 
-  bool Apply(const GURL& original_url,
-             GURL* final_url);
+  bool Apply(const GURL& original_url, GURL* final_url);
   void clear();
 
   extensions::URLPatternSet include_pattern_set_;

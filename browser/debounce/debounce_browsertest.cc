@@ -33,7 +33,8 @@ class DebounceDownloadServiceWaiter : public DebounceDownloadService::Observer {
     scoped_observer_.Add(download_service_);
   }
   DebounceDownloadServiceWaiter(const DebounceDownloadServiceWaiter&) = delete;
-  DebounceDownloadServiceWaiter& operator=(const DebounceDownloadServiceWaiter&) = delete;
+  DebounceDownloadServiceWaiter& operator=(
+      const DebounceDownloadServiceWaiter&) = delete;
   ~DebounceDownloadServiceWaiter() override = default;
 
   void Wait() { run_loop_.Run(); }
@@ -76,8 +77,7 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
     command_line->AppendSwitch(switches::kIgnoreCertificateErrors);
   }
 
-  GURL add_redirect_param(const GURL& original_url,
-                                 const GURL& landing_url) {
+  GURL add_redirect_param(const GURL& original_url, const GURL& landing_url) {
     return net::AppendOrReplaceQueryParameter(original_url, "url",
                                               landing_url.spec());
   }
@@ -89,7 +89,7 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
                           base::Base64UrlEncodePolicy::OMIT_PADDING,
                           &encoded_destination);
     const std::string query =
-      base::StringPrintf("url=%s", encoded_destination.c_str());
+        base::StringPrintf("url=%s", encoded_destination.c_str());
     GURL::Replacements replacement;
     replacement.SetQueryStr(query);
     return original_url.ReplaceComponents(replacement);
@@ -109,8 +109,7 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
   }
 };
 
-IN_PROC_BROWSER_TEST_F(DebounceBrowserTest,
-                       Redirect) {
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, Redirect) {
   ASSERT_TRUE(InstallMockExtension());
   GURL base_url = GURL("http://simple.a.com/");
   GURL landing_url = GURL("http://simple.b.com/");
@@ -118,8 +117,7 @@ IN_PROC_BROWSER_TEST_F(DebounceBrowserTest,
   NavigateToURLAndWaitForRedirects(original_url, landing_url);
 }
 
-IN_PROC_BROWSER_TEST_F(DebounceBrowserTest,
-                       Base64Redirect) {
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, Base64Redirect) {
   ASSERT_TRUE(InstallMockExtension());
   GURL base_url = GURL("http://base64.a.com/");
   GURL landing_url = GURL("http://base64.b.com/");
