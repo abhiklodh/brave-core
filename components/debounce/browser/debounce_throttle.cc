@@ -81,6 +81,11 @@ void DebounceThrottle::WillRedirectRequest(
       !debounce_service_->Debounce(redirect_info->new_url, &debounced_url))
     return;
 
+  // Debouncing on redirect is actually easier than debouncing at the start
+  // of a request because our callback is called before the caller has set
+  // up the isolation info for the new URL, so all we have to do is modify
+  // |redirect_info| to point to the debounced URL instead of the one we
+  // were originally going to redirect to.
   VLOG(1) << "Debouncing rule applied: " << redirect_info->new_url << " -> "
           << debounced_url;
   redirect_info->new_url = debounced_url;

@@ -13,6 +13,7 @@
 #include "base/containers/flat_set.h"
 #include "base/logging.h"
 #include "brave/components/debounce/browser/debounce_download_service.h"
+#include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "url/origin.h"
 
 namespace debounce {
@@ -27,7 +28,12 @@ bool DebounceServiceImpl::Debounce(const GURL& original_url, GURL* final_url) {
   // Check host cache to see if this URL needs to have any debounce rules
   // applied.
   base::flat_set<std::string>* host_cache = download_service_->host_cache();
-  if (!base::Contains(*host_cache, original_url.host()))
+  const std::string etldp1 =
+      net::registry_controlled_domains::GetDomainAndRegistry(
+          original_url.host(),
+          net::registry_controlled_domains::PrivateRegistryFilter::
+              EXCLUDE_PRIVATE_REGISTRIES);
+  if (!base::Contains(*host_cache, etldp1))
     return false;
 
   bool changed = false;

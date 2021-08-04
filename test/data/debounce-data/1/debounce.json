@@ -16,5 +16,58 @@
     ],
     "action": "base64,redirect",
     "param": "url"
+  },
+  {
+    "include": [
+      "http://double.a.com/?url=*"
+    ],
+    "exclude": [
+    ],
+    "action": "redirect",
+    "param": "url"
+  },
+  {
+    "include": [
+      "http://double.b.com/?url=*"
+    ],
+    "exclude": [
+    ],
+    "action": "redirect",
+    "param": "url"
+  },
+  {
+    "include": [
+      "http://*.c.com/?url=*"
+    ],
+    "exclude": [
+    ],
+    "action": "redirect",
+    "param": "url"
+  },
+  {
+    "include": [
+      "http://*.d.com/?url=*"
+    ],
+    "exclude": [
+    ],
+    "action": "unknown-redirect",
+    "param": "url"
+  },
+  {
+    "include": [
+      "http://*.e.com/?url=*"
+    ],
+    "exclude": [
+      "http://excluded.e.com/*"
+    ],
+    "action": "redirect",
+    "param": "url"
+  },
+  {
+    "include": [
+      "http://*.f.com/?url2=*"
+    ],
+    "action": "redirect",
+    "param": "url"
   }
 ]

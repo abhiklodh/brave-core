@@ -19,6 +19,7 @@
 #include "brave/components/brave_component_updater/browser/dat_file_util.h"
 #include "brave/components/brave_component_updater/browser/local_data_files_service.h"
 #include "net/base/escape.h"
+#include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "net/base/url_util.h"
 #include "url/origin.h"
 #include "url/url_util.h"
@@ -181,7 +182,12 @@ void DebounceDownloadService::OnDATFileDataReady(std::string contents) {
     converter.Convert(it, rule.get());
     for (const URLPattern& pattern : rule->include_pattern_set_) {
       if (!pattern.host().empty()) {
-        hosts.push_back(pattern.host());
+        const std::string etldp1 =
+            net::registry_controlled_domains::GetDomainAndRegistry(
+                pattern.host(),
+                net::registry_controlled_domains::PrivateRegistryFilter::
+                    EXCLUDE_PRIVATE_REGISTRIES);
+        hosts.push_back(etldp1);
       }
     }
     rules_.push_back(std::move(rule));

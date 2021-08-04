@@ -109,6 +109,7 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
   }
 };
 
+// Test simple redirection by query parameter.
 IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, Redirect) {
   ASSERT_TRUE(InstallMockExtension());
   GURL base_url = GURL("http://simple.a.com/");
@@ -117,10 +118,81 @@ IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, Redirect) {
   NavigateToURLAndWaitForRedirects(original_url, landing_url);
 }
 
+// Test base64-encoded redirection by query parameter.
 IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, Base64Redirect) {
   ASSERT_TRUE(InstallMockExtension());
   GURL base_url = GURL("http://base64.a.com/");
   GURL landing_url = GURL("http://base64.b.com/");
   GURL original_url = add_base64_redirect_param(base_url, landing_url);
   NavigateToURLAndWaitForRedirects(original_url, landing_url);
+}
+
+// Test that debounce rules continue to be processed in order
+// by constructing a URL that should be debounced to a second
+// URL that should then be debounced to a third URL.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, DoubleRedirect) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL final_url = GURL("http://z.com/");
+  GURL intermediate_url =
+      add_redirect_param(GURL("http://double.b.com/"), final_url);
+  GURL start_url =
+      add_redirect_param(GURL("http://double.a.com/"), intermediate_url);
+  NavigateToURLAndWaitForRedirects(start_url, final_url);
+}
+
+// Test that debounce rules are not processed twice by constructing
+// a URL that should be debounced to a second URL that would be
+// debounced to a third URL except that that rule has already been
+// processed, so it won't.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, NotDoubleRedirect) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL final_url = GURL("http://z.com/");
+  GURL intermediate_url =
+      add_redirect_param(GURL("http://double.a.com/"), final_url);
+  GURL start_url =
+      add_redirect_param(GURL("http://double.b.com/"), intermediate_url);
+  NavigateToURLAndWaitForRedirects(start_url, intermediate_url);
+}
+
+// Test wildcard URL patterns by constructing a URL that should be
+// debounced because it matches a wildcard include pattern.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, WildcardInclude) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL landing_url = GURL("http://z.com/");
+  GURL start_url =
+      add_redirect_param(GURL("http://included.c.com/"), landing_url);
+  NavigateToURLAndWaitForRedirects(start_url, landing_url);
+}
+
+// Test that unknown actions are ignored.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, UnknownAction) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL landing_url = GURL("http://z.com/");
+  GURL start_url =
+      add_redirect_param(GURL("http://included.d.com/"), landing_url);
+  NavigateToURLAndWaitForRedirects(start_url, start_url);
+}
+
+// Test URL exclude patterns by constructing a URL that should be debounced
+// because it matches a wildcard include pattern, then a second one
+// that should not be debounced because it matches an exclude pattern.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, ExcludeOverridesWildcardInclude) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL landing_url = GURL("http://z.com/");
+  GURL start_url_1 =
+      add_redirect_param(GURL("http://included.e.com/"), landing_url);
+  NavigateToURLAndWaitForRedirects(start_url_1, landing_url);
+  GURL start_url_2 =
+      add_redirect_param(GURL("http://excluded.e.com/"), landing_url);
+  NavigateToURLAndWaitForRedirects(start_url_2, start_url_2);
+}
+
+// Test that debouncing rules only apply if the query parameter matches
+// exactly.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, NoParamMatch) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL landing_url = GURL("http://z.com/");
+  GURL start_url =
+      add_redirect_param(GURL("http://included.f.com/"), landing_url);
+  NavigateToURLAndWaitForRedirects(start_url, start_url);
 }
