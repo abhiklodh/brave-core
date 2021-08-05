@@ -196,3 +196,13 @@ IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, NoParamMatch) {
       add_redirect_param(GURL("http://included.f.com/"), landing_url);
   NavigateToURLAndWaitForRedirects(start_url, start_url);
 }
+
+// Test that extra keys in a rule are ignored and the rule is still
+// processed and applied.
+IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, IgnoreExtraKeys) {
+  ASSERT_TRUE(InstallMockExtension());
+  GURL base_url = GURL("http://simple.g.com/");
+  GURL landing_url = GURL("http://z.com/");
+  GURL original_url = add_redirect_param(base_url, landing_url);
+  NavigateToURLAndWaitForRedirects(original_url, landing_url);
+}

@@ -69,5 +69,15 @@
     ],
     "action": "redirect",
     "param": "url"
+  },
+  {
+    "include": [
+      "http://*.g.com/?url=*"
+    ],
+    "exclude": [
+    ],
+    "action": "redirect",
+    "param": "url",
+    "source": "this field is unused but its presence should be tolerated"
   }
 ]
