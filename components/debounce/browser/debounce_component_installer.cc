@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/debounce/browser/debounce_download_service.h"
+#include "brave/components/debounce/browser/debounce_component_installer.h"
 
 #include <memory>
 #include <utility>
@@ -145,23 +145,23 @@ bool DebounceRule::Apply(const GURL& original_url, GURL* final_url) {
   return false;
 }
 
-DebounceDownloadService::DebounceDownloadService(
+DebounceComponentInstaller::DebounceComponentInstaller(
     LocalDataFilesService* local_data_files_service)
     : LocalDataFilesObserver(local_data_files_service), weak_factory_(this) {}
 
-DebounceDownloadService::~DebounceDownloadService() {}
+DebounceComponentInstaller::~DebounceComponentInstaller() {}
 
-void DebounceDownloadService::LoadDirectlyFromResourcePath() {
+void DebounceComponentInstaller::LoadDirectlyFromResourcePath() {
   base::FilePath dat_file_path = resource_dir_.AppendASCII(kDebounceConfigFile);
   base::ThreadPool::PostTaskAndReplyWithResult(
       FROM_HERE, {base::MayBlock()},
       base::BindOnce(&brave_component_updater::GetDATFileAsString,
                      dat_file_path),
-      base::BindOnce(&DebounceDownloadService::OnDATFileDataReady,
+      base::BindOnce(&DebounceComponentInstaller::OnDATFileDataReady,
                      weak_factory_.GetWeakPtr()));
 }
 
-void DebounceDownloadService::OnDATFileDataReady(std::string contents) {
+void DebounceComponentInstaller::OnDATFileDataReady(std::string contents) {
   rules_.clear();
   host_cache_.clear();
   if (contents.empty()) {
@@ -197,7 +197,7 @@ void DebounceDownloadService::OnDATFileDataReady(std::string contents) {
     observer.OnRulesReady(this);
 }
 
-void DebounceDownloadService::OnComponentReady(
+void DebounceComponentInstaller::OnComponentReady(
     const std::string& component_id,
     const base::FilePath& install_dir,
     const std::string& manifest) {
@@ -205,11 +205,12 @@ void DebounceDownloadService::OnComponentReady(
   LoadDirectlyFromResourcePath();
 }
 
-std::vector<std::unique_ptr<DebounceRule>>* DebounceDownloadService::rules() {
+std::vector<std::unique_ptr<DebounceRule>>*
+DebounceComponentInstaller::rules() {
   return &rules_;
 }
 
-base::flat_set<std::string>* DebounceDownloadService::host_cache() {
+base::flat_set<std::string>* DebounceComponentInstaller::host_cache() {
   return &host_cache_;
 }
 

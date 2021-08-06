@@ -13,11 +13,11 @@
 
 namespace debounce {
 
-class DebounceDownloadService;
+class DebounceComponentInstaller;
 
 class DebounceServiceImpl : public DebounceService {
  public:
-  explicit DebounceServiceImpl(DebounceDownloadService* download_service);
+  explicit DebounceServiceImpl(DebounceComponentInstaller* component_installer);
   DebounceServiceImpl(const DebounceServiceImpl&) = delete;
   DebounceServiceImpl& operator=(const DebounceServiceImpl&) = delete;
   ~DebounceServiceImpl() override;
@@ -26,7 +26,7 @@ class DebounceServiceImpl : public DebounceService {
   bool Debounce(const GURL& original_url, GURL* final_url) override;
 
  private:
-  DebounceDownloadService* download_service_;  // NOT OWNED
+  DebounceComponentInstaller* component_installer_;  // NOT OWNED
   base::WeakPtrFactory<DebounceServiceImpl> weak_factory_;
 };
 

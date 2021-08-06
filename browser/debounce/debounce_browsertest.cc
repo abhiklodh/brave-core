@@ -10,7 +10,7 @@
 #include "brave/browser/extensions/brave_base_local_data_files_browsertest.h"
 #include "brave/common/brave_paths.h"
 #include "brave/components/brave_shields/browser/brave_shields_util.h"
-#include "brave/components/debounce/browser/debounce_download_service.h"
+#include "brave/components/debounce/browser/debounce_component_installer.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "components/network_session_configurator/common/network_switches.h"
@@ -21,33 +21,36 @@
 #include "net/dns/mock_host_resolver.h"
 #include "net/test/embedded_test_server/default_handlers.h"
 
-using debounce::DebounceDownloadService;
+using debounce::DebounceComponentInstaller;
 
 const char kTestDataDirectory[] = "debounce-data";
 
-class DebounceDownloadServiceWaiter : public DebounceDownloadService::Observer {
+class DebounceComponentInstallerWaiter
+    : public DebounceComponentInstaller::Observer {
  public:
-  explicit DebounceDownloadServiceWaiter(
-      DebounceDownloadService* download_service)
-      : download_service_(download_service), scoped_observer_(this) {
-    scoped_observer_.Add(download_service_);
+  explicit DebounceComponentInstallerWaiter(
+      DebounceComponentInstaller* component_installer)
+      : component_installer_(component_installer), scoped_observer_(this) {
+    scoped_observer_.Add(component_installer_);
   }
-  DebounceDownloadServiceWaiter(const DebounceDownloadServiceWaiter&) = delete;
-  DebounceDownloadServiceWaiter& operator=(
-      const DebounceDownloadServiceWaiter&) = delete;
-  ~DebounceDownloadServiceWaiter() override = default;
+  DebounceComponentInstallerWaiter(const DebounceComponentInstallerWaiter&) =
+      delete;
+  DebounceComponentInstallerWaiter& operator=(
+      const DebounceComponentInstallerWaiter&) = delete;
+  ~DebounceComponentInstallerWaiter() override = default;
 
   void Wait() { run_loop_.Run(); }
 
  private:
-  // DebounceDownloadService::Observer:
-  void OnRulesReady(DebounceDownloadService* download_service) override {
+  // DebounceComponentInstaller::Observer:
+  void OnRulesReady(DebounceComponentInstaller* component_installer) override {
     run_loop_.QuitWhenIdle();
   }
 
-  DebounceDownloadService* const download_service_;
+  DebounceComponentInstaller* const component_installer_;
   base::RunLoop run_loop_;
-  ScopedObserver<DebounceDownloadService, DebounceDownloadService::Observer>
+  ScopedObserver<DebounceComponentInstaller,
+                 DebounceComponentInstaller::Observer>
       scoped_observer_;
 };
 
@@ -61,15 +64,15 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
   const char* test_data_directory() override { return kTestDataDirectory; }
   const char* embedded_test_server_directory() override { return ""; }
   LocalDataFilesObserver* service() override {
-    return g_brave_browser_process->debounce_download_service();
+    return g_brave_browser_process->debounce_component_installer();
   }
 
   void WaitForService() override {
     // Wait for debounce download service to load and parse its
     // configuration file.
-    debounce::DebounceDownloadService* download_service =
-        g_brave_browser_process->debounce_download_service();
-    DebounceDownloadServiceWaiter(download_service).Wait();
+    debounce::DebounceComponentInstaller* component_installer =
+        g_brave_browser_process->debounce_component_installer();
+    DebounceComponentInstallerWaiter(component_installer).Wait();
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {

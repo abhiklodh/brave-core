@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_DOWNLOAD_SERVICE_H_
-#define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_DOWNLOAD_SERVICE_H_
+#ifndef BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_COMPONENT_INSTALLER_H_
+#define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_COMPONENT_INSTALLER_H_
 
 #include <memory>
 #include <string>
@@ -63,13 +63,14 @@ class DebounceRule {
 
 // The debounce download service is in charge
 // of loading and parsing the debounce configuration file
-class DebounceDownloadService : public LocalDataFilesObserver {
+class DebounceComponentInstaller : public LocalDataFilesObserver {
  public:
-  explicit DebounceDownloadService(
+  explicit DebounceComponentInstaller(
       LocalDataFilesService* local_data_files_service);
-  DebounceDownloadService(const DebounceDownloadService&) = delete;
-  DebounceDownloadService& operator=(const DebounceDownloadService&) = delete;
-  ~DebounceDownloadService() override;
+  DebounceComponentInstaller(const DebounceComponentInstaller&) = delete;
+  DebounceComponentInstaller& operator=(const DebounceComponentInstaller&) =
+      delete;
+  ~DebounceComponentInstaller() override;
 
   std::vector<std::unique_ptr<DebounceRule>>* rules();
   base::flat_set<std::string>* host_cache();
@@ -82,7 +83,8 @@ class DebounceDownloadService : public LocalDataFilesObserver {
   // implementation of our own observers
   class Observer : public base::CheckedObserver {
    public:
-    virtual void OnRulesReady(DebounceDownloadService* download_service) = 0;
+    virtual void OnRulesReady(
+        DebounceComponentInstaller* component_installer) = 0;
   };
   void AddObserver(Observer* observer) { observers_.AddObserver(observer); }
   void RemoveObserver(Observer* observer) {
@@ -101,9 +103,9 @@ class DebounceDownloadService : public LocalDataFilesObserver {
   base::flat_set<std::string> host_cache_;
   base::FilePath resource_dir_;
 
-  base::WeakPtrFactory<DebounceDownloadService> weak_factory_;
+  base::WeakPtrFactory<DebounceComponentInstaller> weak_factory_;
 };
 
 }  // namespace debounce
 
-#endif  // BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_DOWNLOAD_SERVICE_H_
+#endif  // BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_COMPONENT_INSTALLER_H_

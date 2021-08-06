@@ -12,22 +12,22 @@
 #include "base/containers/contains.h"
 #include "base/containers/flat_set.h"
 #include "base/logging.h"
-#include "brave/components/debounce/browser/debounce_download_service.h"
+#include "brave/components/debounce/browser/debounce_component_installer.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "url/origin.h"
 
 namespace debounce {
 
 DebounceServiceImpl::DebounceServiceImpl(
-    DebounceDownloadService* download_service)
-    : download_service_(download_service), weak_factory_(this) {}
+    DebounceComponentInstaller* component_installer)
+    : component_installer_(component_installer), weak_factory_(this) {}
 
 DebounceServiceImpl::~DebounceServiceImpl() {}
 
 bool DebounceServiceImpl::Debounce(const GURL& original_url, GURL* final_url) {
   // Check host cache to see if this URL needs to have any debounce rules
   // applied.
-  base::flat_set<std::string>* host_cache = download_service_->host_cache();
+  base::flat_set<std::string>* host_cache = component_installer_->host_cache();
   const std::string etldp1 =
       net::registry_controlled_domains::GetDomainAndRegistry(
           original_url.host(),
@@ -39,7 +39,7 @@ bool DebounceServiceImpl::Debounce(const GURL& original_url, GURL* final_url) {
   bool changed = false;
   GURL current_url = original_url;
   std::vector<std::unique_ptr<DebounceRule>>* rules =
-      download_service_->rules();
+      component_installer_->rules();
 
   // Debounce rules are applied in order. All rules are checked on every URL. If
   // one rule applies, the URL is changed to the debounced URL and we continue

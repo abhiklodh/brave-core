@@ -37,12 +37,13 @@ DebounceServiceFactory::~DebounceServiceFactory() = default;
 
 KeyedService* DebounceServiceFactory::BuildServiceInstanceFor(
     content::BrowserContext* context) const {
-  debounce::DebounceDownloadService* download_service = nullptr;
+  debounce::DebounceComponentInstaller* component_installer = nullptr;
   // Brave browser process may be null if we are being created within a unit
   // test.
   if (g_brave_browser_process)
-    download_service = g_brave_browser_process->debounce_download_service();
-  return new DebounceServiceImpl(download_service);
+    component_installer =
+        g_brave_browser_process->debounce_component_installer();
+  return new DebounceServiceImpl(component_installer);
 }
 
 bool DebounceServiceFactory::ServiceIsNULLWhileTesting() const {
