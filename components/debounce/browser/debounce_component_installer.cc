@@ -80,11 +80,11 @@ bool DebounceRule::GetURLPatternSetFromValue(
       std::string pattern = pattern_value.GetString();
       patterns.push_back(pattern);
     } else {
-      LOG(ERROR) << "Found non-string pattern in debounce configuration";
+      VLOG(1) << "Found non-string pattern in debounce configuration";
     }
   bool valid = result->Populate(patterns, valid_schemes, false, &error);
   if (!valid)
-    LOG(ERROR) << error;
+    VLOG(1) << error;
   return valid;
 }
 
@@ -162,17 +162,17 @@ void DebounceComponentInstaller::LoadDirectlyFromResourcePath() {
 }
 
 void DebounceComponentInstaller::OnDATFileDataReady(std::string contents) {
-  rules_.clear();
-  host_cache_.clear();
   if (contents.empty()) {
-    LOG(ERROR) << "Could not obtain debounce configuration";
+    VLOG(1) << "Could not obtain debounce configuration";
     return;
   }
   absl::optional<base::Value> root = base::JSONReader::Read(contents);
   if (!root) {
-    LOG(ERROR) << "Failed to parse debounce configuration";
+    VLOG(1) << "Failed to parse debounce configuration";
     return;
   }
+  rules_.clear();
+  host_cache_.clear();
   base::ListValue* root_list = nullptr;
   root->GetAsList(&root_list);
   std::vector<std::string> hosts;
