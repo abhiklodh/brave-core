@@ -72,8 +72,8 @@ class DebounceComponentInstaller : public LocalDataFilesObserver {
       delete;
   ~DebounceComponentInstaller() override;
 
-  std::vector<std::unique_ptr<DebounceRule>>* rules();
-  base::flat_set<std::string>* host_cache();
+  const std::vector<std::unique_ptr<DebounceRule>>& rules() const;
+  const base::flat_set<std::string>& host_cache() const;
 
   // implementation of LocalDataFilesObserver
   void OnComponentReady(const std::string& component_id,

@@ -205,13 +205,14 @@ void DebounceComponentInstaller::OnComponentReady(
   LoadDirectlyFromResourcePath();
 }
 
-std::vector<std::unique_ptr<DebounceRule>>*
-DebounceComponentInstaller::rules() {
-  return &rules_;
+const std::vector<std::unique_ptr<DebounceRule>>&
+DebounceComponentInstaller::rules() const {
+  return rules_;
 }
 
-base::flat_set<std::string>* DebounceComponentInstaller::host_cache() {
-  return &host_cache_;
+const base::flat_set<std::string>& DebounceComponentInstaller::host_cache()
+    const {
+  return host_cache_;
 }
 
 }  // namespace debounce
