@@ -715,6 +715,7 @@ if (!is_android) {
       "//components/security_interstitials/content:security_interstitial_page",
       "//media:test_support",
       "//testing/gmock",
+      "//ui/aura:test_support",
     ]
 
     if (enable_crash_dialog) {
