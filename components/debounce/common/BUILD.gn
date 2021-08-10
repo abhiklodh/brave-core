@@ -6,7 +6,6 @@ source_set("common") {
 
   deps = [
     "//base",
-    "//components/content_settings/core/common",
     "//url",
   ]
 }

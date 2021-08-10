@@ -10,8 +10,8 @@
 
 #include "base/memory/singleton.h"
 #include "brave/browser/brave_browser_process.h"
-#include "brave/components/debounce/browser/debounce_service.h"
 #include "brave/components/debounce/browser/debounce_service_impl.h"
+#include "chrome/browser/profiles/incognito_helpers.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/keyed_service/core/keyed_service.h"
 
@@ -44,6 +44,11 @@ KeyedService* DebounceServiceFactory::BuildServiceInstanceFor(
     component_installer =
         g_brave_browser_process->debounce_component_installer();
   return new DebounceServiceImpl(component_installer);
+}
+
+content::BrowserContext* DebounceServiceFactory::GetBrowserContextToUse(
+    content::BrowserContext* context) const {
+  return chrome::GetBrowserContextRedirectedInIncognito(context);
 }
 
 bool DebounceServiceFactory::ServiceIsNULLWhileTesting() const {

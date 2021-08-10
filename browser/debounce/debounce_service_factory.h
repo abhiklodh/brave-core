@@ -6,11 +6,8 @@
 #ifndef BRAVE_BROWSER_DEBOUNCE_DEBOUNCE_SERVICE_FACTORY_H_
 #define BRAVE_BROWSER_DEBOUNCE_DEBOUNCE_SERVICE_FACTORY_H_
 
-#include "base/macros.h"
 #include "base/memory/singleton.h"
 #include "components/keyed_service/content/browser_context_keyed_service_factory.h"
-
-class Profile;
 
 namespace debounce {
 
@@ -32,6 +29,8 @@ class DebounceServiceFactory : public BrowserContextKeyedServiceFactory {
   KeyedService* BuildServiceInstanceFor(
       content::BrowserContext* context) const override;
   bool ServiceIsNULLWhileTesting() const override;
+  content::BrowserContext* GetBrowserContextToUse(
+      content::BrowserContext* context) const override;
 
   DebounceServiceFactory(const DebounceServiceFactory&) = delete;
   DebounceServiceFactory& operator=(const DebounceServiceFactory&) = delete;

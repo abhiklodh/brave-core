@@ -6,9 +6,9 @@
 #ifndef BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_H_
 #define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_H_
 
-#include "base/macros.h"
 #include "components/keyed_service/core/keyed_service.h"
-#include "url/gurl.h"
+
+class GURL;
 
 namespace debounce {
 
