@@ -6,11 +6,13 @@
 #include "base/base64url.h"
 #include "base/path_service.h"
 #include "base/strings/stringprintf.h"
+#include "base/test/scoped_feature_list.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/browser/extensions/brave_base_local_data_files_browsertest.h"
 #include "brave/common/brave_paths.h"
 #include "brave/components/brave_shields/browser/brave_shields_util.h"
 #include "brave/components/debounce/browser/debounce_component_installer.h"
+#include "brave/components/debounce/common/features.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "components/network_session_configurator/common/network_switches.h"
@@ -56,8 +58,10 @@ class DebounceComponentInstallerWaiter
 
 class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
  public:
-  void SetUpOnMainThread() override {
-    BaseLocalDataFilesBrowserTest::SetUpOnMainThread();
+  void SetUp() override {
+    scoped_feature_list_.InitAndEnableFeature(
+        debounce::features::kBraveDebounce);
+    BaseLocalDataFilesBrowserTest::SetUp();
   }
 
   // BaseLocalDataFilesBrowserTest overrides
@@ -110,6 +114,9 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
     load_complete.Wait();
     EXPECT_EQ(contents()->GetLastCommittedURL(), landing_url);
   }
+
+ private:
+  base::test::ScopedFeatureList scoped_feature_list_;
 };
 
 // Test simple redirection by query parameter.
