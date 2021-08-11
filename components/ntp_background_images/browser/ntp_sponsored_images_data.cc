@@ -236,7 +236,6 @@ base::Value NTPSponsoredImagesData::GetBackgroundAt(size_t index) {
     return data;
 
   data.SetStringKey(kThemeNameKey, theme_name);
-  data.SetBoolKey(kIsBackgroundKey, false);    // This is used to inform its Android counterpart
   data.SetBoolKey(kIsSponsoredKey, !IsSuperReferral());
   data.SetStringKey(kWallpaperImageURLKey,
                     wallpaper_image_urls()[index]);

@@ -112,7 +112,6 @@ base::Value NTPBackgroundImagesData::GetBackgroundAt(size_t index) {
 
   data.SetStringKey(kWallpaperImagePathKey,
                     backgrounds[index].image_file.AsUTF8Unsafe());
-  data.SetBoolKey(kIsBackgroundKey, true);    // This is used to inform its Android counterpart
 
   data.SetStringKey(kImageAuthorKey, backgrounds[index].author);
   data.SetStringKey(kImageLinkKey, backgrounds[index].link);

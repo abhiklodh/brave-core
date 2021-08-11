@@ -129,11 +129,9 @@ public class NTPUtil {
         if(sponsoredTab.shouldShowBanner()) {
             if(PackageUtils.isFirstInstall(context)
                 && ntpImage instanceof Wallpaper
-                && !((Wallpaper) ntpImage).isBackground()
                 && !BraveAdsNativeHelper.nativeIsBraveAdsEnabled(Profile.getLastUsedRegularProfile())) {
                 return SponsoredImageUtil.BR_ON_ADS_OFF ;
             } else if (ntpImage instanceof Wallpaper
-                    && !((Wallpaper) ntpImage).isBackground()
                     && BraveAdsNativeHelper.nativeIsBraveAdsEnabled(
                             Profile.getLastUsedRegularProfile())) {
                 return SponsoredImageUtil.BR_ON_ADS_ON;
@@ -298,14 +296,45 @@ public class NTPUtil {
 
         if (ntpImage instanceof Wallpaper) {
             Wallpaper mWallpaper = (Wallpaper) ntpImage;
-            InputStream inputStream = null;
-            try {
-                Uri imageFileUri = Uri.parse("file://" + mWallpaper.getImagePath());
-                Log.w("NTPUtil", "getWallpaperBitmap: imageFileUri: " + imageFileUri.toString());
+            imageBitmap = getBitmapFromImagePath(mWallpaper.getImagePath(), options);
+            if (imageBitmap == null)
+                return null;
+
+            centerPointX = mWallpaper.getFocalPointX() == 0 ? (imageBitmap.getWidth() / 2) : mWallpaper.getFocalPointX();
+            centerPointY = mWallpaper.getFocalPointY() == 0 ? (imageBitmap.getHeight() / 2) : mWallpaper.getFocalPointY();
+        } else {
+            BackgroundImage mBackgroundImage = (BackgroundImage) ntpImage;
+            String imagePath = mBackgroundImage.getImagePath();
+
+            // Bundled Background Images
+            if (imagePath == null) {
+                imageBitmap = BitmapFactory.decodeResource(mContext.getResources(), mBackgroundImage.getImageDrawable(), options);
+
+                centerPointX = mBackgroundImage.getCenterPointX();
+                centerPointY = mBackgroundImage.getCenterPointY();
+            } else {
+                imageBitmap = getBitmapFromImagePath(imagePath, options);
+                if (imageBitmap == null)
+                    return null;
+
+                centerPointX = mBackgroundImage.getCenterPointX() == 0 ? (imageBitmap.getWidth() / 2) : mBackgroundImage.getCenterPointX();
+                centerPointY = mBackgroundImage.getCenterPointY() == 0 ? (imageBitmap.getHeight() / 2) : mBackgroundImage.getCenterPointY();
+            }
+        }
+        return getCalculatedBitmap(imageBitmap, centerPointX, centerPointY, layoutWidth, layoutHeight);
+    }
+
+    private static Bitmap getBitmapFromImagePath(String imagePath, BitmapFactory.Options options) {
+        Context mContext = ContextUtils.getApplicationContext();
+        Bitmap imageBitmap = null;
+        InputStream inputStream = null;
+        try {
+                Uri imageFileUri = Uri.parse("file://" + imagePath);
+                Log.w("NTPUtil", "getBitmapFromImagePath: imageFileUri: " + imageFileUri.toString());
                 inputStream = mContext.getContentResolver().openInputStream(imageFileUri);
-                Log.w("NTPUtil", "getWallpaperBitmap: inputStream: " + String.valueOf(inputStream.available()));
+                Log.w("NTPUtil", "getBitmapFromImagePath: inputStream: " + String.valueOf(inputStream.available()));
                 imageBitmap = BitmapFactory.decodeStream(inputStream, null, options);
-                Log.w("NTPUtil", "getWallpaperBitmap: imageBitmap: " + String.valueOf(imageBitmap == null));
+                Log.w("NTPUtil", "getBitmapFromImagePath: imageBitmap: " + String.valueOf(imageBitmap == null));
                 inputStream.close();
             } catch (IOException exc) {
                 Log.e("NTP", exc.getMessage());
@@ -321,16 +350,7 @@ public class NTPUtil {
                     return null;
                 }
             }
-            centerPointX = mWallpaper.getFocalPointX() == 0 ? (imageBitmap.getWidth() / 2) : mWallpaper.getFocalPointX();
-            centerPointY = mWallpaper.getFocalPointY() == 0 ? (imageBitmap.getHeight() / 2) : mWallpaper.getFocalPointY();
-        } else {
-            BackgroundImage mBackgroundImage = (BackgroundImage) ntpImage;
-            imageBitmap = BitmapFactory.decodeResource(mContext.getResources(), mBackgroundImage.getImageDrawable(), options);
-
-            centerPointX = mBackgroundImage.getCenterPointX();
-            centerPointY = mBackgroundImage.getCenterPointY();
-        }
-        return getCalculatedBitmap(imageBitmap, centerPointX, centerPointY, layoutWidth, layoutHeight);
+            return imageBitmap;
     }
 
     public static Bitmap getCalculatedBitmap(Bitmap imageBitmap, float centerPointX, float centerPointY, int layoutWidth, int layoutHeight) {
@@ -470,7 +490,7 @@ public class NTPUtil {
     }
 
     public static NTPImage getNTPImage(NTPBackgroundImagesBridge mNTPBackgroundImagesBridge) {
-        Wallpaper mWallpaper = mNTPBackgroundImagesBridge.getCurrentWallpaper();
+        NTPImage mWallpaper = mNTPBackgroundImagesBridge.getCurrentWallpaper();
         if (mWallpaper != null) {
             return mWallpaper;
         } else {

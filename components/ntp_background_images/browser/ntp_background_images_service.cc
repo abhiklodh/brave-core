@@ -24,7 +24,9 @@
 #include "brave/components/l10n/common/locale_util.h"
 #include "brave/components/ntp_background_images/browser/features.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_component_installer.h"
+#if BUILDFLAG(ENABLE_NTP_BACKGROUND_IMAGES)
 #include "brave/components/ntp_background_images/browser/ntp_background_images_data.h"
+#endif
 #include "brave/components/ntp_background_images/browser/ntp_background_images_source.h"
 #include "brave/components/ntp_background_images/browser/ntp_sponsored_images_data.h"
 #include "brave/components/ntp_background_images/browser/sponsored_images_component_data.h"
@@ -118,7 +120,7 @@ void NTPBackgroundImagesService::Init() {
              << " from local path at: " << forced_local_path.LossyDisplayName();
     OnSponsoredComponentReady(false, forced_local_path);
   } else {
-#if defined(OS_ANDROID)
+#if BUILDFLAG(ENABLE_NTP_BACKGROUND_IMAGES)
     RegisterBackgroundImagesComponent();
 #endif
     RegisterSponsoredImagesComponent();
@@ -149,6 +151,7 @@ void NTPBackgroundImagesService::CheckImagesComponentUpdate(
   BraveOnDemandUpdater::GetInstance()->OnDemandUpdate(component_id);
 }
 
+#if BUILDFLAG(ENABLE_NTP_BACKGROUND_IMAGES)
 void NTPBackgroundImagesService::RegisterBackgroundImagesComponent() {
   const auto& data = GetBackgroundImagesComponentData();
 
@@ -164,6 +167,7 @@ void NTPBackgroundImagesService::RegisterBackgroundImagesComponent() {
       base::BindRepeating(&NTPBackgroundImagesService::OnComponentReady,
                           weak_factory_.GetWeakPtr()));
 }
+#endif
 
 void NTPBackgroundImagesService::RegisterSponsoredImagesComponent() {
   LOG(WARNING) << "NTPBackgroundImagesService::RegisterSponsoredImagesComponent" << ": Start NTP SI component";
@@ -414,6 +418,7 @@ bool NTPBackgroundImagesService::HasObserver(Observer* observer) {
   return observer_list_.HasObserver(observer);
 }
 
+#if BUILDFLAG(ENABLE_NTP_BACKGROUND_IMAGES)
 NTPBackgroundImagesData*
 NTPBackgroundImagesService::GetBackgroundImagesData() const {
   if (bi_images_data_ && bi_images_data_->IsValid()) {
@@ -422,6 +427,7 @@ NTPBackgroundImagesService::GetBackgroundImagesData() const {
 
   return nullptr;
 }
+#endif
 
 NTPSponsoredImagesData*
 NTPBackgroundImagesService::GetBrandedImagesData(bool super_referral) const {
@@ -456,6 +462,7 @@ NTPBackgroundImagesService::GetBrandedImagesData(bool super_referral) const {
   return nullptr;
 }
 
+#if BUILDFLAG(ENABLE_NTP_BACKGROUND_IMAGES)
 void NTPBackgroundImagesService::OnComponentReady(
     const base::FilePath& installed_dir) {
   LOG(WARNING) << "NTPBackgroundImagesService::OnComponentReady: installed_dir: " << installed_dir;
@@ -469,6 +476,16 @@ void NTPBackgroundImagesService::OnComponentReady(
       base::BindOnce(&NTPBackgroundImagesService::OnGetComponentJsonData,
                      weak_factory_.GetWeakPtr()));
 }
+
+void NTPBackgroundImagesService::OnGetComponentJsonData(const std::string& json_string) {
+  bi_images_data_.reset(new NTPBackgroundImagesData(json_string,
+                                                    bi_installed_dir_));
+
+  for (auto& observer : observer_list_) {
+    observer.OnUpdated(bi_images_data_.get());
+  }
+}
+#endif
 
 void NTPBackgroundImagesService::OnSponsoredComponentReady(
     bool is_super_referral,
@@ -487,15 +504,6 @@ void NTPBackgroundImagesService::OnSponsoredComponentReady(
       base::BindOnce(&HandleComponentData, installed_dir),
       base::BindOnce(&NTPBackgroundImagesService::OnGetSponsoredComponentJsonData,
                      weak_factory_.GetWeakPtr(), is_super_referral));
-}
-
-void NTPBackgroundImagesService::OnGetComponentJsonData(const std::string& json_string) {
-  bi_images_data_.reset(new NTPBackgroundImagesData(json_string,
-                                                    bi_installed_dir_));
-
-  for (auto& observer : observer_list_) {
-    observer.OnUpdated(bi_images_data_.get());
-  }
 }
 
 void NTPBackgroundImagesService::OnGetSponsoredComponentJsonData(

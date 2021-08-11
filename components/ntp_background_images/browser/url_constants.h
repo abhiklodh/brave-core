@@ -26,7 +26,6 @@ constexpr char kWallpapersKey[] = "wallpapers";
 constexpr char kWallpaperFocalPointKey[] = "focalPoint";
 
 constexpr char kImagesKey[] = "images";
-constexpr char kIsBackgroundKey[] = "isBackground";
 constexpr char kImageSourceKey[] = "source";
 constexpr char kImageAuthorKey[] = "author";
 constexpr char kImageLinkKey[] = "link";
