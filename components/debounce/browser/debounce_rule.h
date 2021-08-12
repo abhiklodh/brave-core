@@ -6,6 +6,8 @@
 #ifndef BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_RULE_H_
 #define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_RULE_H_
 
+#include <string>
+
 #include "base/json/json_value_converter.h"
 #include "base/values.h"
 #include "extensions/common/url_pattern_set.h"
