@@ -60,7 +60,8 @@ void DebounceComponentInstaller::OnDATFileDataReady(
   base::JSONValueConverter<DebounceRule> converter;
   for (base::Value& it : root->GetList()) {
     std::unique_ptr<DebounceRule> rule = std::make_unique<DebounceRule>();
-    converter.Convert(it, rule.get());
+    if (!converter.Convert(it, rule.get()))
+      continue;
     for (const URLPattern& pattern : rule->include_pattern_set()) {
       if (!pattern.host().empty()) {
         std::string etldp1 =
