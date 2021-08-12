@@ -92,7 +92,7 @@ function Container (props: Props) {
     selectedPanel,
     showSignTransaction,
     showAllowSpendERC20Token,
-    showAllowAddNetwork
+    networkPayload,
   } = props.panel
 
   // TODO(petemill): If initial data or UI takes a noticeable amount of time to arrive
@@ -276,11 +276,17 @@ function Container (props: Props) {
   }
 
   const onApproveAddNetwork = () => {
-    // Logic Here to Approve Adding a Network
+    props.walletPanelActions.addEthereumChainApproved({
+      networkPayload: networkPayload,
+      origin: connectedSiteOrigin,
+    })
   }
 
   const onCancelAddNetwork = () => {
-    // Logic Here to Cancel Adding a Network
+    props.walletPanelActions.addEthereumChainCanceled({
+      networkPayload: networkPayload,
+      origin: connectedSiteOrigin
+    })
   }
 
   // Example of a ERC20 Spend Payload to be passed to the
@@ -336,8 +342,9 @@ function Container (props: Props) {
       </StyledExtensionWrapper>
     )
   }
-
-  if (showAllowAddNetwork) {
+  console.log(selectedPanel)
+  if (selectedPanel === 'addEthereumChain') {
+    console.log("gogogo")
     return (
       <SignContainer>
         <AllowAddNetworkPanel
@@ -389,7 +396,6 @@ function Container (props: Props) {
       </SelectContainer>
     )
   }
-
   if (selectedPanel === 'networks') {
     return (
       <SelectContainer>

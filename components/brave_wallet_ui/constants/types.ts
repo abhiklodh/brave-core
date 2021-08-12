@@ -176,7 +176,7 @@ export interface PanelState {
   connectingAccounts: string[]
   showSignTransaction: boolean
   showAllowSpendERC20Token: boolean
-  showAllowAddNetwork: boolean
+  networkPayload: string
 }
 
 export interface PageState {
