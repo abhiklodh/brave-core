@@ -20,7 +20,7 @@ namespace debounce {
 
 DebounceService::DebounceService(
     DebounceComponentInstaller* component_installer)
-    : component_installer_(component_installer), weak_factory_(this) {}
+    : component_installer_(component_installer) {}
 
 DebounceService::~DebounceService() {}
 
@@ -33,7 +33,7 @@ bool DebounceService::Debounce(const GURL& original_url, GURL* final_url) {
       net::registry_controlled_domains::GetDomainAndRegistry(
           original_url.host(),
           net::registry_controlled_domains::PrivateRegistryFilter::
-              EXCLUDE_PRIVATE_REGISTRIES);
+              INCLUDE_PRIVATE_REGISTRIES);
   if (!base::Contains(host_cache, etldp1))
     return false;
 

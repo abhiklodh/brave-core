@@ -4,6 +4,8 @@ source_set("browser") {
   sources = [
     "debounce_component_installer.cc",
     "debounce_component_installer.h",
+    "debounce_rule.cc",
+    "debounce_rule.h",
     "debounce_service.cc",
     "debounce_service.h",
     "debounce_throttle.cc",

@@ -11,6 +11,7 @@
 #include "base/memory/singleton.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/components/debounce/browser/debounce_service.h"
+#include "brave/components/debounce/common/features.h"
 #include "chrome/browser/profiles/incognito_helpers.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/keyed_service/core/keyed_service.h"
@@ -37,6 +38,10 @@ DebounceServiceFactory::~DebounceServiceFactory() = default;
 
 KeyedService* DebounceServiceFactory::BuildServiceInstanceFor(
     content::BrowserContext* context) const {
+  // Don't create service is debounce feature is disabled
+  if (!base::FeatureList::IsEnabled(debounce::features::kBraveDebounce))
+    return nullptr;
+
   debounce::DebounceComponentInstaller* component_installer = nullptr;
   // Brave browser process may be null if we are being created within a unit
   // test.

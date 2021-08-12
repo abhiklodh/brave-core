@@ -9,10 +9,8 @@
 #include <string>
 #include <vector>
 
-#include "base/feature_list.h"
 #include "brave/components/brave_shields/browser/brave_shields_util.h"
 #include "brave/components/debounce/browser/debounce_service.h"
-#include "brave/components/debounce/common/features.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "services/network/public/cpp/request_mode.h"
 #include "services/network/public/cpp/resource_request.h"
@@ -24,9 +22,10 @@ namespace debounce {
 std::unique_ptr<DebounceThrottle> DebounceThrottle::MaybeCreateThrottleFor(
     DebounceService* debounce_service,
     HostContentSettingsMap* host_content_settings_map) {
-  // If debouncing is disabled in brave://flags, don't create throttle. Caller
-  // must nullcheck this.
-  if (!base::FeatureList::IsEnabled(debounce::features::kBraveDebounce))
+  // If debouncing is disabled in brave://flags, debounce service will
+  // never be created (will be null) so we won't create the throttle
+  // either. Caller must nullcheck this.
+  if (!debounce_service)
     return nullptr;
   return std::make_unique<DebounceThrottle>(debounce_service,
                                             host_content_settings_map);
@@ -36,7 +35,10 @@ DebounceThrottle::DebounceThrottle(
     DebounceService* debounce_service,
     HostContentSettingsMap* host_content_settings_map)
     : debounce_service_(debounce_service),
-      host_content_settings_map_(host_content_settings_map) {}
+      host_content_settings_map_(host_content_settings_map) {
+  DCHECK(debounce_service_);
+  DCHECK(host_content_settings_map_);
+}
 
 DebounceThrottle::~DebounceThrottle() = default;
 

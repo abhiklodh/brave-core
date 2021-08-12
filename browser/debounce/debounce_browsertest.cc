@@ -23,9 +23,11 @@
 #include "net/dns/mock_host_resolver.h"
 #include "net/test/embedded_test_server/default_handlers.h"
 
-using debounce::DebounceComponentInstaller;
-
+namespace {
 const char kTestDataDirectory[] = "debounce-data";
+}
+
+namespace debounce {
 
 class DebounceComponentInstallerWaiter
     : public DebounceComponentInstaller::Observer {
@@ -102,7 +104,7 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
     return original_url.ReplaceComponents(replacement);
   }
 
-  content::WebContents* contents() {
+  content::WebContents* web_contents() {
     return browser()->tab_strip_model()->GetActiveWebContents();
   }
 
@@ -112,7 +114,7 @@ class DebounceBrowserTest : public BaseLocalDataFilesBrowserTest {
         landing_url, content::NotificationService::AllSources());
     ui_test_utils::NavigateToURL(browser(), original_url);
     load_complete.Wait();
-    EXPECT_EQ(contents()->GetLastCommittedURL(), landing_url);
+    EXPECT_EQ(web_contents()->GetLastCommittedURL(), landing_url);
   }
 
  private:
@@ -216,3 +218,5 @@ IN_PROC_BROWSER_TEST_F(DebounceBrowserTest, IgnoreExtraKeys) {
   GURL original_url = add_redirect_param(base_url, landing_url);
   NavigateToURLAndWaitForRedirects(original_url, landing_url);
 }
+
+}  // namespace debounce

@@ -18,52 +18,18 @@
 #include "base/sequence_checker.h"
 #include "base/values.h"
 #include "brave/components/brave_component_updater/browser/local_data_files_observer.h"
+#include "brave/components/debounce/browser/debounce_rule.h"
 #include "brave/components/debounce/browser/debounce_service.h"
-#include "extensions/common/url_pattern_set.h"
-#include "url/gurl.h"
-
-class DebounceBrowserTest;
 
 using brave_component_updater::LocalDataFilesObserver;
 using brave_component_updater::LocalDataFilesService;
 
 namespace debounce {
 
+class DebounceBrowserTest;
+
 extern const char kDebounceConfigFile[];
 extern const char kDebounceConfigFileVersion[];
-
-enum DebounceAction {
-  kDebounceNoAction,
-  kDebounceRedirectToParam,
-  kDebounceBase64DecodeAndRedirectToParam
-};
-
-class DebounceRule {
- public:
-  DebounceRule();
-  ~DebounceRule();
-
-  // Registers the mapping between JSON field names and the members in this
-  // class.
-  static void RegisterJSONConverter(
-      base::JSONValueConverter<DebounceRule>* converter);
-  static bool ParseDebounceAction(base::StringPiece value,
-                                  DebounceAction* field);
-  static bool GetURLPatternSetFromValue(const base::Value* value,
-                                        extensions::URLPatternSet* result);
-
-  bool Apply(const GURL& original_url, GURL* final_url);
-  void clear();
-  const extensions::URLPatternSet& include_pattern_set() const {
-    return include_pattern_set_;
-  }
-
- private:
-  extensions::URLPatternSet include_pattern_set_;
-  extensions::URLPatternSet exclude_pattern_set_;
-  DebounceAction action_;
-  std::string param_;
-};
 
 // The debounce download service is in charge
 // of loading and parsing the debounce configuration file
@@ -76,8 +42,10 @@ class DebounceComponentInstaller : public LocalDataFilesObserver {
       delete;
   ~DebounceComponentInstaller() override;
 
-  const std::vector<std::unique_ptr<DebounceRule>>& rules() const;
-  const base::flat_set<std::string>& host_cache() const;
+  const std::vector<std::unique_ptr<DebounceRule>>& rules() const {
+    return rules_;
+  }
+  const base::flat_set<std::string>& host_cache() const { return host_cache_; }
 
   // implementation of LocalDataFilesObserver
   void OnComponentReady(const std::string& component_id,
@@ -96,9 +64,9 @@ class DebounceComponentInstaller : public LocalDataFilesObserver {
   }
 
  private:
-  friend class ::DebounceBrowserTest;
+  friend class DebounceBrowserTest;
 
-  void OnDATFileDataReady(std::string contents);
+  void OnDATFileDataReady(const std::string& contents);
   void LoadOnTaskRunner();
   void LoadDirectlyFromResourcePath();
 
@@ -107,7 +75,7 @@ class DebounceComponentInstaller : public LocalDataFilesObserver {
   base::flat_set<std::string> host_cache_;
   base::FilePath resource_dir_;
 
-  base::WeakPtrFactory<DebounceComponentInstaller> weak_factory_;
+  base::WeakPtrFactory<DebounceComponentInstaller> weak_factory_{this};
 };
 
 }  // namespace debounce

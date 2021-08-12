@@ -8,7 +8,6 @@
 #include <memory>
 #include <utility>
 
-#include "base/base64url.h"
 #include "base/base_paths.h"
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -18,11 +17,7 @@
 #include "base/task/thread_pool.h"
 #include "brave/components/brave_component_updater/browser/dat_file_util.h"
 #include "brave/components/brave_component_updater/browser/local_data_files_service.h"
-#include "net/base/escape.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
-#include "net/base/url_util.h"
-#include "url/origin.h"
-#include "url/url_util.h"
 
 using brave_component_updater::LocalDataFilesObserver;
 using brave_component_updater::LocalDataFilesService;
@@ -31,123 +26,10 @@ namespace debounce {
 
 const char kDebounceConfigFile[] = "debounce.json";
 const char kDebounceConfigFileVersion[] = "1";
-// debounce.json keys
-const char kInclude[] = "include";
-const char kExclude[] = "exclude";
-const char kAction[] = "action";
-const char kParam[] = "param";
-
-DebounceRule::DebounceRule() {
-  clear();
-}
-
-DebounceRule::~DebounceRule() = default;
-
-void DebounceRule::clear() {
-  include_pattern_set_.ClearPatterns();
-  exclude_pattern_set_.ClearPatterns();
-  action_ = kDebounceNoAction;
-  param_ = "";
-}
-
-bool DebounceRule::ParseDebounceAction(base::StringPiece value,
-                                       DebounceAction* field) {
-  if (value == "redirect") {
-    *field = kDebounceRedirectToParam;
-  } else if (value == "base64,redirect") {
-    *field = kDebounceBase64DecodeAndRedirectToParam;
-  } else {
-    LOG(INFO) << "Found unknown debouncing action: " << value;
-    *field = kDebounceNoAction;
-  }
-  return true;
-}
-
-bool DebounceRule::GetURLPatternSetFromValue(
-    const base::Value* value,
-    extensions::URLPatternSet* result) {
-  // Debouncing only affects HTTP or HTTPS URLs, regardless of how the rules are
-  // written. (Also, don't write rules for other URL schemes, because they won't
-  // work and you're just wasting everyone's time.)
-  int valid_schemes = URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS;
-  std::string error;
-  if (!value->is_list())
-    return false;
-  auto pattern_list = value->GetList();
-  std::vector<std::string> patterns;
-  for (auto& pattern_value : pattern_list)
-    if (pattern_value.is_string()) {
-      std::string pattern = pattern_value.GetString();
-      patterns.push_back(pattern);
-    } else {
-      VLOG(1) << "Found non-string pattern in debounce configuration";
-    }
-  bool valid = result->Populate(patterns, valid_schemes, false, &error);
-  if (!valid)
-    VLOG(1) << error;
-  return valid;
-}
-
-void DebounceRule::RegisterJSONConverter(
-    base::JSONValueConverter<DebounceRule>* converter) {
-  converter->RegisterCustomValueField<extensions::URLPatternSet>(
-      kInclude, &DebounceRule::include_pattern_set_, GetURLPatternSetFromValue);
-  converter->RegisterCustomValueField<extensions::URLPatternSet>(
-      kExclude, &DebounceRule::exclude_pattern_set_, GetURLPatternSetFromValue);
-  converter->RegisterCustomField<DebounceAction>(
-      kAction, &DebounceRule::action_, &ParseDebounceAction);
-  converter->RegisterStringField(kParam, &DebounceRule::param_);
-}
-
-bool DebounceRule::Apply(const GURL& original_url, GURL* final_url) {
-  // If URL matches an explicitly excluded pattern, this rule does not apply.
-  if (exclude_pattern_set_.MatchesURL(original_url))
-    return false;
-  // If URL does not match an explicitly included pattern, this rule does not
-  // apply.
-  if (!include_pattern_set_.MatchesURL(original_url))
-    return false;
-
-  if (action_ == kDebounceRedirectToParam ||
-      action_ == kDebounceBase64DecodeAndRedirectToParam) {
-    std::string unescaped_value;
-    if (!net::GetValueForKeyInQuery(original_url, param_, &unescaped_value))
-      return false;
-    GURL new_url;
-    if (action_ == kDebounceBase64DecodeAndRedirectToParam) {
-      std::string base64_decoded_value;
-      if (!base::Base64UrlDecode(unescaped_value,
-                                 base::Base64UrlDecodePolicy::IGNORE_PADDING,
-                                 &base64_decoded_value))
-        return false;
-      new_url = GURL(base64_decoded_value);
-    } else {
-      new_url = GURL(unescaped_value);
-    }
-
-    // Failsafe: ensure we got a valid URL out of the param.
-    if (!new_url.is_valid() || !new_url.SchemeIsHTTPOrHTTPS())
-      return false;
-
-    // Failsafe: never redirect to the same site.
-    url::Origin original_origin = url::Origin::Create(original_url);
-    url::Origin debounced_origin = url::Origin::Create(new_url);
-    if (original_origin.IsSameOriginWith(debounced_origin))
-      return false;
-
-    *final_url = new_url;
-    return true;
-  }
-
-  // Unknown actions always return false, to allow for future updates to the
-  // rules file which may be pushed to users before a new version of the code
-  // that parses it.
-  return false;
-}
 
 DebounceComponentInstaller::DebounceComponentInstaller(
     LocalDataFilesService* local_data_files_service)
-    : LocalDataFilesObserver(local_data_files_service), weak_factory_(this) {}
+    : LocalDataFilesObserver(local_data_files_service) {}
 
 DebounceComponentInstaller::~DebounceComponentInstaller() {}
 
@@ -161,7 +43,8 @@ void DebounceComponentInstaller::LoadDirectlyFromResourcePath() {
                      weak_factory_.GetWeakPtr()));
 }
 
-void DebounceComponentInstaller::OnDATFileDataReady(std::string contents) {
+void DebounceComponentInstaller::OnDATFileDataReady(
+    const std::string& contents) {
   if (contents.empty()) {
     VLOG(1) << "Could not obtain debounce configuration";
     return;
@@ -173,12 +56,10 @@ void DebounceComponentInstaller::OnDATFileDataReady(std::string contents) {
   }
   rules_.clear();
   host_cache_.clear();
-  base::ListValue* root_list = nullptr;
-  root->GetAsList(&root_list);
   std::vector<std::string> hosts;
-  for (base::Value& it : root_list->GetList()) {
+  base::JSONValueConverter<DebounceRule> converter;
+  for (base::Value& it : root->GetList()) {
     std::unique_ptr<DebounceRule> rule = std::make_unique<DebounceRule>();
-    base::JSONValueConverter<DebounceRule> converter;
     converter.Convert(it, rule.get());
     for (const URLPattern& pattern : rule->include_pattern_set()) {
       if (!pattern.host().empty()) {
@@ -186,8 +67,8 @@ void DebounceComponentInstaller::OnDATFileDataReady(std::string contents) {
             net::registry_controlled_domains::GetDomainAndRegistry(
                 pattern.host(),
                 net::registry_controlled_domains::PrivateRegistryFilter::
-                    EXCLUDE_PRIVATE_REGISTRIES);
-        hosts.push_back(etldp1);
+                    INCLUDE_PRIVATE_REGISTRIES);
+        hosts.push_back(std::move(etldp1));
       }
     }
     rules_.push_back(std::move(rule));
@@ -203,16 +84,6 @@ void DebounceComponentInstaller::OnComponentReady(
     const std::string& manifest) {
   resource_dir_ = install_dir.AppendASCII(kDebounceConfigFileVersion);
   LoadDirectlyFromResourcePath();
-}
-
-const std::vector<std::unique_ptr<DebounceRule>>&
-DebounceComponentInstaller::rules() const {
-  return rules_;
-}
-
-const base::flat_set<std::string>& DebounceComponentInstaller::host_cache()
-    const {
-  return host_cache_;
 }
 
 }  // namespace debounce

@@ -6,8 +6,8 @@
 #ifndef BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_H_
 #define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_H_
 
-#include "components/keyed_service/core/keyed_service.h"
 #include "base/memory/weak_ptr.h"
+#include "components/keyed_service/core/keyed_service.h"
 
 class GURL;
 
@@ -23,9 +23,9 @@ class DebounceService : public KeyedService {
   ~DebounceService() override;
   bool Debounce(const GURL& original_url, GURL* final_url);
 
-private:
-  DebounceComponentInstaller* component_installer_;  // NOT OWNED
-  base::WeakPtrFactory<DebounceService> weak_factory_;
+ private:
+  DebounceComponentInstaller* component_installer_ = nullptr;  // NOT OWNED
+  base::WeakPtrFactory<DebounceService> weak_factory_{this};
 };
 
 }  // namespace debounce
