@@ -7,17 +7,25 @@
 #define BRAVE_COMPONENTS_DEBOUNCE_BROWSER_DEBOUNCE_SERVICE_H_
 
 #include "components/keyed_service/core/keyed_service.h"
+#include "base/memory/weak_ptr.h"
 
 class GURL;
 
 namespace debounce {
 
+class DebounceComponentInstaller;
+
 class DebounceService : public KeyedService {
  public:
-  DebounceService() = default;
+  explicit DebounceService(DebounceComponentInstaller* component_installer);
   DebounceService(const DebounceService&) = delete;
   DebounceService& operator=(const DebounceService&) = delete;
-  virtual bool Debounce(const GURL& original_url, GURL* final_url) = 0;
+  ~DebounceService() override;
+  bool Debounce(const GURL& original_url, GURL* final_url);
+
+private:
+  DebounceComponentInstaller* component_installer_;  // NOT OWNED
+  base::WeakPtrFactory<DebounceService> weak_factory_;
 };
 
 }  // namespace debounce

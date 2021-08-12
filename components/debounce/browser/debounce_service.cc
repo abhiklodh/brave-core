@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/debounce/browser/debounce_service_impl.h"
+#include "brave/components/debounce/browser/debounce_service.h"
 
 #include <memory>
 #include <string>
@@ -18,13 +18,13 @@
 
 namespace debounce {
 
-DebounceServiceImpl::DebounceServiceImpl(
+DebounceService::DebounceService(
     DebounceComponentInstaller* component_installer)
     : component_installer_(component_installer), weak_factory_(this) {}
 
-DebounceServiceImpl::~DebounceServiceImpl() {}
+DebounceService::~DebounceService() {}
 
-bool DebounceServiceImpl::Debounce(const GURL& original_url, GURL* final_url) {
+bool DebounceService::Debounce(const GURL& original_url, GURL* final_url) {
   // Check host cache to see if this URL needs to have any debounce rules
   // applied.
   const base::flat_set<std::string>& host_cache =

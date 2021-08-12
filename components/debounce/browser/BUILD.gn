@@ -4,9 +4,8 @@ source_set("browser") {
   sources = [
     "debounce_component_installer.cc",
     "debounce_component_installer.h",
+    "debounce_service.cc",
     "debounce_service.h",
-    "debounce_service_impl.cc",
-    "debounce_service_impl.h",
     "debounce_throttle.cc",
     "debounce_throttle.h",
   ]
@@ -20,7 +19,7 @@ source_set("browser") {
     "//components/content_settings/core/browser",
     "//content/public/browser",
     "//content/public/common",
-    "//extensions/common:common",
+    "//extensions/common",
     "//services/network/public/cpp",
     "//services/network/public/mojom",
     "//third_party/blink/public/common",

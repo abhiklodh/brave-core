@@ -180,7 +180,7 @@ void DebounceComponentInstaller::OnDATFileDataReady(std::string contents) {
     std::unique_ptr<DebounceRule> rule = std::make_unique<DebounceRule>();
     base::JSONValueConverter<DebounceRule> converter;
     converter.Convert(it, rule.get());
-    for (const URLPattern& pattern : rule->include_pattern_set_) {
+    for (const URLPattern& pattern : rule->include_pattern_set()) {
       if (!pattern.host().empty()) {
         const std::string etldp1 =
             net::registry_controlled_domains::GetDomainAndRegistry(

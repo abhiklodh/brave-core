@@ -54,7 +54,11 @@ class DebounceRule {
 
   bool Apply(const GURL& original_url, GURL* final_url);
   void clear();
+  const extensions::URLPatternSet& include_pattern_set() const {
+    return include_pattern_set_;
+  }
 
+ private:
   extensions::URLPatternSet include_pattern_set_;
   extensions::URLPatternSet exclude_pattern_set_;
   DebounceAction action_;
