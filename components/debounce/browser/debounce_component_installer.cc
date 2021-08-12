@@ -63,7 +63,7 @@ void DebounceComponentInstaller::OnDATFileDataReady(
     converter.Convert(it, rule.get());
     for (const URLPattern& pattern : rule->include_pattern_set()) {
       if (!pattern.host().empty()) {
-        const std::string etldp1 =
+        std::string etldp1 =
             net::registry_controlled_domains::GetDomainAndRegistry(
                 pattern.host(),
                 net::registry_controlled_domains::PrivateRegistryFilter::
