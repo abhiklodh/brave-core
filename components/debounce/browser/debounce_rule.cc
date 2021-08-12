@@ -14,6 +14,7 @@
 #include "base/macros.h"
 #include "net/base/escape.h"
 #include "net/base/url_util.h"
+#include "url/gurl.h"
 #include "url/origin.h"
 #include "url/url_util.h"
 
