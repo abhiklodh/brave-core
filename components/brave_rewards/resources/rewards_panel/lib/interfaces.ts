@@ -27,6 +27,17 @@ export interface PublisherInfo {
   supportedWalletProviders: ExternalWalletProvider[]
 }
 
+export interface GrantCaptchaInfo {
+  id: string
+  imageURL: string
+  hint: string
+  status: 'pending' | 'passed' | 'failed' | 'error'
+  grantId: string
+  grantSource: 'ads' | 'ugp'
+  grantAmount: number
+  grantExpiresAt: number | null
+}
+
 interface Settings {
   adsPerHour: number
   autoContributeAmount: number
@@ -41,6 +52,7 @@ export interface HostState {
   balance: number
   settings: Settings
   options: Options
+  grantCaptchaInfo: GrantCaptchaInfo | null
   exchangeInfo: ExchangeInfo
   earningsInfo: EarningsInfo
   publisherInfo: PublisherInfo | null
@@ -73,4 +85,6 @@ export interface Host {
   dismissNotification: (notification: Notification) => void
   clearNotifications: () => void
   setNotificationsViewed: () => void
+  solveGrantCaptcha: (solution: { x: number, y: number }) => void
+  clearGrantCaptcha: () => void
 }

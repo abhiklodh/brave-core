@@ -22,12 +22,29 @@ export const localeStrings = {
   unverifiedLinks: '$1Learn more$2 or $3Don’t show again$4.',
   includeInAutoContribute: 'Include in Auto-Contribute',
   monthlyContribution: 'Monthly Contribution',
+  ok: 'OK',
   set: 'Set',
   changeAmount: 'Change amount',
   cancel: 'Cancel',
+  dismiss: 'Dismiss',
 
-  notificationDismiss: 'Dismiss',
-  notificationOK: 'OK',
+  // Grant Captcha
+
+  grantCaptchaTitle: 'Prove that you are human!', // captchaProveHuman
+  grantCaptcahFailedTitle: 'Hmm… Not Quite. Try Again.', // captchaMissedTarget
+  grantCaptchaHint: 'Drag the BAT icon to the $1 target.', // captchaDrag
+  grantCaptchaPassedUgpTitle: 'It’s your lucky day!', // grantFinishTitleUGP
+  grantCaptchaPassedUgpText: 'Your token grant is on its way.', // grantFinishTextUGP (edited)
+  grantCaptchaPassedAdsTitle: 'You\'ve earned an Ads Reward!', // grantFinishTitleAds
+  grantCaptchaPassedAdsText: 'Your Reward is on its way to your Brave Rewards wallet.', // grantFinishTextAds
+  grantCaptchaAmountUgp: 'Free Token Grant', // grantFinishTokenTitleUGP
+  grantCaptchaAmountAds: 'Your Reward Amount', // grantFinishTokenTitleAds
+  grantCaptchaExpiration: 'Grant Expiration Date', // grantExpire
+  grantCaptchaErrorTitle: 'Oops, something is wrong. Please try again later.', // grantGeneralErrorTitle
+  grantCaptchaErrorText: 'Brave Rewards is having an issue. Please try again later.', // grantGeneralErrorText
+
+  // Notifications
+
   notificationAddFunds: 'Add Funds', // addFunds
   notificationLearnMore: 'Learn More', // learnMore
   notificationReconnect: 'Reconnect',

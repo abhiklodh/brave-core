@@ -15,6 +15,8 @@ import { NotificationCard } from '../components/notification_card'
 
 import { App } from '../components/app'
 
+import grantCaptchaImageURL from './grant_captcha_image.png'
+
 export default {
   title: 'Rewards/Panel'
 }
@@ -27,13 +29,23 @@ const locale = {
 
 function createHost (): Host {
   const stateManager = createStateManager<HostState>({
-    rewardsEnabled: false,
+    rewardsEnabled: true,
     settings: {
       adsPerHour: 3,
       autoContributeAmount: 5
     },
     options: {
       autoContributeAmounts: [1, 5, 10, 15]
+    },
+    grantCaptchaInfo: {
+      id: '123',
+      imageURL: grantCaptchaImageURL,
+      hint: 'square',
+      status: 'pending',
+      grantId: 'grant123',
+      grantExpiresAt: Date.now() + 120_000,
+      grantAmount: 10,
+      grantSource: 'ads'
     },
     externalWalletProviders: ['uphold', 'gemini'],
     hidePublisherUnverifiedNote: false,
@@ -194,6 +206,26 @@ function createHost (): Host {
     setNotificationsViewed () {
       stateManager.update({
         notificationsLastViewed: Date.now()
+      })
+    },
+
+    solveGrantCaptcha (solution) {
+      console.log('solveGrantCaptcha', solution)
+      const { grantCaptchaInfo } = stateManager.getState()
+      if (!grantCaptchaInfo) {
+        return
+      }
+      stateManager.update({
+        grantCaptchaInfo: {
+          ...grantCaptchaInfo,
+          status: 'passed'
+        }
+      })
+    },
+
+    clearGrantCaptcha () {
+      stateManager.update({
+        grantCaptchaInfo: null
       })
     }
   }
