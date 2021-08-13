@@ -24,16 +24,16 @@ DebounceService::DebounceService(
 
 DebounceService::~DebounceService() {}
 
-bool DebounceService::Debounce(const GURL& original_url, GURL* final_url) {
+bool DebounceService::Debounce(const GURL& original_url,
+                               GURL* final_url) const {
   // Check host cache to see if this URL needs to have any debounce rules
   // applied.
   const base::flat_set<std::string>& host_cache =
       component_installer_->host_cache();
   const std::string etldp1 =
       net::registry_controlled_domains::GetDomainAndRegistry(
-          original_url.host(),
-          net::registry_controlled_domains::PrivateRegistryFilter::
-              INCLUDE_PRIVATE_REGISTRIES);
+          original_url, net::registry_controlled_domains::
+                            PrivateRegistryFilter::INCLUDE_PRIVATE_REGISTRIES);
   if (!base::Contains(host_cache, etldp1))
     return false;
 

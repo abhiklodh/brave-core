@@ -21,7 +21,7 @@ class DebounceService : public KeyedService {
   DebounceService(const DebounceService&) = delete;
   DebounceService& operator=(const DebounceService&) = delete;
   ~DebounceService() override;
-  bool Debounce(const GURL& original_url, GURL* final_url);
+  bool Debounce(const GURL& original_url, GURL* final_url) const;
 
  private:
   DebounceComponentInstaller* component_installer_ = nullptr;  // NOT OWNED

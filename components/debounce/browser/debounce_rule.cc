@@ -9,14 +9,9 @@
 #include <utility>
 
 #include "base/base64url.h"
-#include "base/base_paths.h"
-#include "base/logging.h"
-#include "base/macros.h"
-#include "net/base/escape.h"
 #include "net/base/url_util.h"
 #include "url/gurl.h"
 #include "url/origin.h"
-#include "url/url_util.h"
 
 namespace {
 // debounce.json keys
@@ -32,6 +27,7 @@ DebounceRule::DebounceRule() : action_(kDebounceNoAction) {}
 
 DebounceRule::~DebounceRule() = default;
 
+// static
 bool DebounceRule::ParseDebounceAction(base::StringPiece value,
                                        DebounceAction* field) {
   if (value == "redirect") {
@@ -45,6 +41,7 @@ bool DebounceRule::ParseDebounceAction(base::StringPiece value,
   return true;
 }
 
+// static
 bool DebounceRule::GetURLPatternSetFromValue(
     const base::Value* value,
     extensions::URLPatternSet* result) {
@@ -62,6 +59,7 @@ bool DebounceRule::GetURLPatternSetFromValue(
   return valid;
 }
 
+// static
 void DebounceRule::RegisterJSONConverter(
     base::JSONValueConverter<DebounceRule>* converter) {
   converter->RegisterCustomValueField<extensions::URLPatternSet>(
@@ -91,14 +89,13 @@ bool DebounceRule::Apply(const GURL& original_url, GURL* final_url) const {
   std::string unescaped_value;
   if (!net::GetValueForKeyInQuery(original_url, param_, &unescaped_value))
     return false;
-  if (action_ == kDebounceBase64DecodeAndRedirectToParam) {
-    if (!base::Base64UrlDecode(unescaped_value,
-                               base::Base64UrlDecodePolicy::IGNORE_PADDING,
-                               &unescaped_value)) {
-      return false;
-    }
+  if ((action_ == kDebounceBase64DecodeAndRedirectToParam) &&
+      (!base::Base64UrlDecode(unescaped_value,
+                              base::Base64UrlDecodePolicy::IGNORE_PADDING,
+                              &unescaped_value))) {
+    return false;
   }
-  GURL new_url = GURL(unescaped_value);
+  GURL new_url(unescaped_value);
 
   // Failsafe: ensure we got a valid URL out of the param.
   if (!new_url.is_valid() || !new_url.SchemeIsHTTPOrHTTPS())

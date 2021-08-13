@@ -21,9 +21,6 @@
 #include "brave/components/debounce/browser/debounce_rule.h"
 #include "brave/components/debounce/browser/debounce_service.h"
 
-using brave_component_updater::LocalDataFilesObserver;
-using brave_component_updater::LocalDataFilesService;
-
 namespace debounce {
 
 class DebounceBrowserTest;
@@ -33,10 +30,11 @@ extern const char kDebounceConfigFileVersion[];
 
 // The debounce download service is in charge
 // of loading and parsing the debounce configuration file
-class DebounceComponentInstaller : public LocalDataFilesObserver {
+class DebounceComponentInstaller
+    : public brave_component_updater::LocalDataFilesObserver {
  public:
   explicit DebounceComponentInstaller(
-      LocalDataFilesService* local_data_files_service);
+      brave_component_updater::LocalDataFilesService* local_data_files_service);
   DebounceComponentInstaller(const DebounceComponentInstaller&) = delete;
   DebounceComponentInstaller& operator=(const DebounceComponentInstaller&) =
       delete;
@@ -47,7 +45,7 @@ class DebounceComponentInstaller : public LocalDataFilesObserver {
   }
   const base::flat_set<std::string>& host_cache() const { return host_cache_; }
 
-  // implementation of LocalDataFilesObserver
+  // implementation of brave_component_updater::LocalDataFilesObserver
   void OnComponentReady(const std::string& component_id,
                         const base::FilePath& install_dir,
                         const std::string& manifest) override;
