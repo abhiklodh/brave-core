@@ -111,6 +111,10 @@ constexpr char kBraveDomainBlockName[] = "Enable domain blocking";
 constexpr char kBraveDomainBlockDescription[] =
     "Enable support for blocking domains with an interstitial page";
 
+constexpr char kBraveDebounceName[] = "Enable debouncing";
+constexpr char kBraveDebounceDescription[] =
+    "Enable support for skipping tracking URLs";
+
 constexpr char kBraveExtensionNetworkBlockingName[] =
     "Enable extension network blocking";
 constexpr char kBraveExtensionNetworkBlockingDescription[] =
@@ -344,6 +348,10 @@ constexpr char kUseDevUpdaterUrlDescription[] =
      flag_descriptions::kBraveDomainBlockName,                              \
      flag_descriptions::kBraveDomainBlockDescription, kOsAll,               \
      FEATURE_VALUE_TYPE(kBraveDomainBlock)},                                \
+    {"brave-debounce",                                                      \
+        flag_descriptions::kBraveDebounceName,                              \
+        flag_descriptions::kBraveDebounceDescription, kOsAll,               \
+        FEATURE_VALUE_TYPE(kBraveDebounce)},                                \
     {"brave-extension-network-blocking",                                    \
      flag_descriptions::kBraveExtensionNetworkBlockingName,                 \
      flag_descriptions::kBraveExtensionNetworkBlockingDescription, kOsAll,  \
