@@ -12,7 +12,7 @@
 
 #include "base/values.h"
 #include "brave/components/brave_ads/browser/ads_service.h"
-#include "brave/components/ntp_background_images/browser/buildflags/buildflags.h"
+#include "brave/components/ntp_background_images/buildflags/buildflags.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_service.h"
 #include "brave/components/ntp_background_images/browser/view_counter_model.h"
 #include "components/keyed_service/core/keyed_service.h"
@@ -72,9 +72,6 @@ class ViewCounterService : public KeyedService,
   std::vector<TopSite> GetTopSitesVectorData() const;
 
   bool IsSuperReferral() const;
-  // Should we show the branded wallpaper right now, in addition
-  // to the result from `IsBrandedWallpaperActive()`.
-  bool ShouldShowBrandedWallpaper() const;
   std::string GetSuperReferralThemeName() const;
   std::string GetSuperReferralCode() const;
 
@@ -130,6 +127,9 @@ class ViewCounterService : public KeyedService,
   // Do we have a sponsored or referral wallpaper to show and has the user
   // opted-in to showing it at some time.
   bool IsBrandedWallpaperActive() const;
+  // Should we show the branded wallpaper right now, in addition
+  // to the result from `IsBrandedWallpaperActive()`.
+  bool ShouldShowBrandedWallpaper() const;
 
   void ResetModel();
 

@@ -113,6 +113,7 @@ base::Value NTPBackgroundImagesData::GetBackgroundAt(size_t index) {
   data.SetStringKey(kWallpaperImagePathKey,
                     backgrounds[index].image_file.AsUTF8Unsafe());
 
+  data.SetBoolKey(kIsBackgroundKey, true);
   data.SetStringKey(kImageAuthorKey, backgrounds[index].author);
   data.SetStringKey(kImageLinkKey, backgrounds[index].link);
   return data;

@@ -16,7 +16,7 @@
 #include "base/observer_list.h"
 #include "base/timer/timer.h"
 #include "base/values.h"
-#include "brave/components/ntp_background_images/browser/buildflags/buildflags.h"
+#include "brave/components/ntp_background_images/buildflags/buildflags.h"
 #include "components/prefs/pref_change_registrar.h"
 
 namespace component_updater {

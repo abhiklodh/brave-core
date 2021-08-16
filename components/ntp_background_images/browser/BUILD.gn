@@ -1,4 +1,4 @@
-import("//brave/components/ntp_background_images/browser/buildflags/buildflags.gni")
+import("//brave/components/ntp_background_images/buildflags/buildflags.gni")
 
 static_library("browser") {
   sources = [
@@ -31,7 +31,7 @@ static_library("browser") {
   }
 
   deps = [
-    "buildflags",
+    "../buildflags",
     "//base",
     "//brave/components/brave_ads/browser",
     "//brave/components/brave_ads/common",

@@ -237,6 +237,7 @@ base::Value NTPSponsoredImagesData::GetBackgroundAt(size_t index) {
 
   data.SetStringKey(kThemeNameKey, theme_name);
   data.SetBoolKey(kIsSponsoredKey, !IsSuperReferral());
+  data.SetBoolKey(kIsBackgroundKey, false);
   data.SetStringKey(kWallpaperImageURLKey,
                     wallpaper_image_urls()[index]);
   data.SetStringKey(kWallpaperImagePathKey,

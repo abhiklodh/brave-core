@@ -7,7 +7,7 @@
 #define BRAVE_COMPONENTS_NTP_BACKGROUND_IMAGES_BROWSER_VIEW_COUNTER_MODEL_H_
 
 #include "base/gtest_prod_util.h"
-#include "brave/components/ntp_background_images/browser/buildflags/buildflags.h"
+#include "brave/components/ntp_background_images/buildflags/buildflags.h"
 
 namespace ntp_background_images {
 
@@ -43,7 +43,9 @@ class ViewCounterModel {
 
   bool ShouldShowBrandedWallpaper() const;
   void RegisterPageView();
+#if BUILDFLAG(ENABLE_NTP_BACKGROUND_IMAGES)
   void ResetCurrentWallpaperImageIndex();
+#endif
   void ResetCurrentBrandedWallpaperImageIndex();
 
   // If |true|, kInitialCountToBrandedWallpaper is set to
