@@ -396,25 +396,71 @@ void UpdateLastUnlockPref(PrefService* prefs) {
   prefs->SetTime(kBraveWalletLastUnlockTime, base::Time::Now());
 }
 
-base::Value EthereumChainToValue(const AddEthereumChainParameter& chainData) {
+bool ValueToEthereumChain(const base::Value& value,
+                          std::vector<EthereumChain>* chains) {
+  if (!chains)
+    return false;
+  for (auto& it : value.GetList()) {
+    const base::DictionaryValue* params_dict;
+    it.GetAsDictionary(&params_dict);
+    if (!params_dict)
+      return false;
+
+    EthereumChain chain;
+    if (!params_dict->GetString("chainId", &chain.chain_id))
+      return false;
+
+    params_dict->GetString("chainName", &chain.chain_name);
+
+    const base::ListValue* explorerUrlsList;
+    if (params_dict->GetList("blockExplorerUrls", &explorerUrlsList)) {
+      for (const auto& entry : explorerUrlsList->GetList())
+        chain.block_explorer_urls.push_back(entry.GetString());
+    }
+
+    const base::ListValue* iconUrlsList;
+    if (params_dict->GetList("iconUrls", &iconUrlsList)) {
+      for (const auto& entry : iconUrlsList->GetList())
+        chain.icon_urls.push_back(entry.GetString());
+    }
+
+    const base::ListValue* rpcUrlsList;
+    if (params_dict->GetList("rpcUrls", &rpcUrlsList)) {
+      for (const auto& entry : rpcUrlsList->GetList())
+        chain.rpc_urls.push_back(entry.GetString());
+    }
+
+    const base::DictionaryValue* currency_dict;
+    if (params_dict->GetDictionary("nativeCurrency", &currency_dict)) {
+      currency_dict->GetString("name", &chain.currency.name);
+      currency_dict->GetString("symbol", &chain.currency.symbol);
+      chain.currency.decimals =
+          currency_dict->FindIntPath("decimals").value_or(0);
+    }
+    chains->push_back(std::move(chain));
+  }
+  return true;
+}
+
+base::Value EthereumChainToValue(const EthereumChain& chainData) {
   base::Value dict(base::Value::Type::DICTIONARY);
-  dict.SetStringKey("chainId", chainData.chainId);
-  dict.SetStringKey("chainName", chainData.chainName);
+  dict.SetStringKey("chainId", chainData.chain_id);
+  dict.SetStringKey("chainName", chainData.chain_name);
 
   base::ListValue blockExplorerUrlsValue;
-  for (const auto& url : chainData.blockExplorerUrls) {
+  for (const auto& url : chainData.block_explorer_urls) {
     blockExplorerUrlsValue.AppendString(url);
   }
   dict.SetKey("blockExplorerUrls", std::move(blockExplorerUrlsValue));
 
   base::ListValue iconUrlsValue;
-  for (const auto& url : chainData.iconUrls) {
+  for (const auto& url : chainData.icon_urls) {
     iconUrlsValue.AppendString(url);
   }
   dict.SetKey("iconUrls", std::move(iconUrlsValue));
 
   base::ListValue rpcUrlsValue;
-  for (const auto& url : chainData.rpcUrls) {
+  for (const auto& url : chainData.rpc_urls) {
     rpcUrlsValue.AppendString(url);
   }
   dict.SetKey("rpcUrls", std::move(rpcUrlsValue));

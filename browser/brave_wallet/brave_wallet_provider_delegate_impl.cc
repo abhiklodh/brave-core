@@ -18,8 +18,6 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/bindings/remote.h"
-#include "brave/browser/brave_wallet/brave_wallet_tab_helper.h"
-
 
 namespace brave_wallet {
 
@@ -79,12 +77,9 @@ void BraveWalletProviderDelegateImpl::OnConnectionError() {
 }
 
 void BraveWalletProviderDelegateImpl::RequestUserApproval(
-    const std::string& type, const std::string& requestData,
-    RequestEthereumPermissionsCallback callback) {
-  auto* rfh = content::RenderFrameHost::FromID(routing_id_);
-  auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
-  
-  brave_wallet::BraveWalletTabHelper::FromWebContents(web_contents)
+    const std::string& requestData,
+    RequestEthereumChainCallback callback) {
+  brave_wallet::BraveWalletTabHelper::FromWebContents(web_contents_)
         ->RequestUserApproval(requestData, std::move(callback));
 }
 

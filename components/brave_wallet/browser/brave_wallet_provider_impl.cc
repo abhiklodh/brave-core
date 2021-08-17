@@ -7,12 +7,16 @@
 
 #include <utility>
 
+#include "base/strings/stringprintf.h"
+#include "base/json/json_writer.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_provider_delegate.h"
+#include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
 #include "brave/components/brave_wallet/browser/eth_json_rpc_controller.h"
 #include "brave/components/brave_wallet/browser/eth_response_parser.h"
 
 namespace {
 const char kAddEthereumChainMethod[] = "wallet_addEthereumChain";
+const char kJsonResponseF[] = R"({"id":1,"jsonrpc":"2.0",%s})";
 }  // namespace
 
 namespace brave_wallet {
@@ -32,15 +36,22 @@ BraveWalletProviderImpl::~BraveWalletProviderImpl() {}
 
 bool BraveWalletProviderImpl::OnAddEthereumChainRequest(
     const std::string& json_payload, RequestCallback callback) {
-  AddEthereumChainParameter result;
-  if (!ParseAddEthereumChainParameter(json_payload, &result))
-    return false;
   if (!delegate_)
     return false;
-  DLOG(INFO) << "json_payload:" << json_payload;
-  delegate_->RequestUserApproval(kAddEthereumChainMethod, json_payload,
+  base::Value payload;
+  if (!ParsePayload(json_payload, "params", &payload))
+    return false;
+  std::vector<EthereumChain> chains;
+  if (!ValueToEthereumChain(payload, &chains))
+    return false;
+  DCHECK_LT(chains.size(), size_t(2));
+  auto valueValue = brave_wallet::EthereumChainToValue(chains[0]);
+  std::string chainJson;
+  if (!base::JSONWriter::Write(valueValue, &chainJson))
+    return false;
+  delegate_->RequestUserApproval(chainJson,
       base::BindOnce(&BraveWalletProviderImpl::OnChainAddedResult,
-                    weak_factory_.GetWeakPtr(), std::move(callback)));
+                     weak_factory_.GetWeakPtr(), std::move(callback)));
   return true;
 }
 
@@ -116,11 +127,15 @@ void BraveWalletProviderImpl::OnConnectionError() {
   observer_receiver_.reset();
 }
 
-void BraveWalletProviderImpl::OnChainAddedResult(
-    RequestCallback callback,
-                const std::vector<std::string>& accounts) {
+void BraveWalletProviderImpl::OnChainAddedResult(RequestCallback callback,
+    const std::string& error) {
   base::flat_map<std::string, std::string> headers;
-  std::move(callback).Run(200, "{'lalla': 1}", headers);
+  std::string value = R"("result" : null)";
+  if (!error.empty()) {
+    value = error;
+  }
+  std::string response = base::StringPrintf(kJsonResponseF, value.c_str());
+  std::move(callback).Run(200, response, headers);
 }
 
 }  // namespace brave_wallet

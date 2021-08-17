@@ -31,14 +31,14 @@ import {
 // Utils
 import { reduceAddress } from '../../../utils/reduce-address'
 import { copyToClipboard } from '../../../utils/copy-to-clipboard'
-import { WalletAccountType, PanelTypes, Network } from '../../../constants/types'
+import { WalletAccountType, PanelTypes, EthereumChain } from '../../../constants/types'
 import { create, background } from 'ethereum-blockies'
 import locale from '../../../constants/locale'
 import { NetworkOptions } from '../../../options/network-options'
 
 export interface Props {
   selectedAccount: WalletAccountType
-  selectedNetwork: Network
+  selectedNetwork: EthereumChain
   isConnected: boolean
   connectAction: () => void
   navAction: (path: PanelTypes) => void
@@ -63,6 +63,16 @@ const ConnectedPanel = (props: Props) => {
     return create({ seed: selectedAccount.address, size: 8, scale: 16 }).toDataURL()
   }, [selectedAccount.address])
 
+  const getShortNetworkName = (network: EthereumChain) => {
+    for (let it of NetworkOptions) {
+      if (it.id !== network.chainId) {
+        continue
+      }
+      return it.abbr
+    }
+    return network.chainName
+  }
+
   return (
     <StyledWrapper panelBackground={bg}>
       <ConnectedHeader action={navAction} />
@@ -73,7 +83,7 @@ const ConnectedPanel = (props: Props) => {
             <OvalButtonText>{isConnected ? 'Connected' : 'Not Connected'}</OvalButtonText>
           </OvalButton>
           <OvalButton onClick={navigate('networks')}>
-            <OvalButtonText>{NetworkOptions[selectedNetwork].abbr}</OvalButtonText>
+            <OvalButtonText>{getShortNetworkName(selectedNetwork)}</OvalButtonText>
             <CaratDownIcon />
           </OvalButton>
         </StatusRow>

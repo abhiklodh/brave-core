@@ -127,25 +127,6 @@ TEST_F(EthJsonRpcControllerUnitTest, SetNetwork) {
   base::RunLoop().RunUntilIdle();
 }
 
-TEST_F(EthJsonRpcControllerUnitTest, SetCustomNetwork) {
-  EthJsonRpcController controller(brave_wallet::mojom::Network::Mainnet,
-                                  shared_url_loader_factory());
-  std::string custom_network("http://tesshared_url_loader_factoryt.com/");
-  controller.SetCustomNetwork(GURL(custom_network));
-
-  controller.GetNetwork(
-      base::BindOnce([](brave_wallet::mojom::Network network) {
-        EXPECT_EQ(network, brave_wallet::mojom::Network::Custom);
-      }));
-  controller.GetNetworkUrl(base::BindOnce(
-      [](std::string custom_network, const std::string& spec) {
-        EXPECT_EQ(GURL(spec).GetOrigin(), custom_network);
-      },
-      custom_network));
-
-  base::RunLoop().RunUntilIdle();
-}
-
 TEST_F(EthJsonRpcControllerUnitTest, ResolveENSDomain) {
   EthJsonRpcController controller(brave_wallet::mojom::Network::Localhost,
                                   shared_url_loader_factory());

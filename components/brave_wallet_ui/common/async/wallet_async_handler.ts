@@ -14,7 +14,7 @@ import {
 import {
   AppObjectType,
   APIProxyControllers,
-  Network,
+  EthereumChain,
   WalletState,
   WalletPanelState,
   AssetPriceTimeframe
@@ -54,6 +54,15 @@ async function getTokenPriceHistory (store: Store) {
   store.dispatch(WalletActions.portfolioPriceHistoryUpdated(result))
 }
 
+const GetNetworkInfo = (chainId: string, list: EthereumChain[]) => {
+  for (let it of list) {
+    if (it.chainId === chainId) {
+      return it
+    }
+  }
+  return { chainId: '' }
+}
+
 async function refreshWalletInfo (store: Store) {
   const apiProxy = await getAPIProxy()
   const walletHandler = apiProxy.walletHandler
@@ -61,8 +70,11 @@ async function refreshWalletInfo (store: Store) {
   const assetPriceController = apiProxy.assetRatioController
   const result = await walletHandler.getWalletInfo()
   store.dispatch(WalletActions.initialized(result))
-  const network = await ethJsonRpcController.getNetwork()
-  store.dispatch(WalletActions.setNetwork(network.network))
+  const networkList = await ethJsonRpcController.getAllNetworks()
+  store.dispatch(WalletActions.setAllNetworks(networkList))
+  const chainId = await ethJsonRpcController.getChainId()
+  const current = GetNetworkInfo(chainId.chainId, networkList.networks)
+  store.dispatch(WalletActions.setNetwork(current))
 
   // VisibleTokens need to be setup and returned from prefs
   // that away we can map over the contract id's and get the token info for
@@ -175,10 +187,17 @@ handler.on(WalletActions.setInitialVisibleTokens.getType(), async (store, payloa
   // await walletHandler.setInitialVisibleTokens(payload.visibleAssets)
 })
 
-handler.on(WalletActions.selectNetwork.getType(), async (store, payload: Network) => {
+handler.on(WalletActions.selectNetwork.getType(), async (store, payload: EthereumChain) => {
   const ethJsonRpcController = (await getAPIProxy()).ethJsonRpcController
-  await ethJsonRpcController.setNetwork(payload)
+  await ethJsonRpcController.setNetwork(payload.chainId)
   await refreshWalletInfo(store)
+})
+
+handler.on(WalletActions.getAllNetworks.getType(), async (store) => {
+  const ethJsonRpcController = (await getAPIProxy()).ethJsonRpcController
+  const fullList = await ethJsonRpcController.getAllNetworks()
+
+  store.dispatch(WalletActions.setAllNetworks(fullList))
 })
 
 handler.on(WalletActions.getAllTokensList.getType(), async (store) => {

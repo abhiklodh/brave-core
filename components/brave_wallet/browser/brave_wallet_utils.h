@@ -87,7 +87,11 @@ void SecureZeroData(void* data, size_t size);
 // because we call it both from the old extension and the new wallet when
 // it unlocks.
 void UpdateLastUnlockPref(PrefService* prefs);
-base::Value EthereumChainToValue(const AddEthereumChainParameter& chainData);
+
+base::Value EthereumChainToValue(const EthereumChain& chainData);
+bool ValueToEthereumChain(const base::Value& value,
+                          std::vector<EthereumChain>* chains);
+
 base::Value TransactionReceiptToValue(const TransactionReceipt& tx_receipt);
 absl::optional<TransactionReceipt> ValueToTransactionReceipt(
     const base::Value& value);

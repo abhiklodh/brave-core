@@ -33,9 +33,9 @@ class BraveWalletProviderDelegateImpl : public BraveWalletProviderDelegate {
       const BraveWalletProviderDelegateImpl&) = delete;
   ~BraveWalletProviderDelegateImpl() override;
 
-  void RequestUserApproval(const std::string& type,
+  void RequestUserApproval(
       const std::string& requestData,
-      RequestEthereumPermissionsCallback callback) override;
+      RequestEthereumChainCallback callback) override;
 
   void RequestEthereumPermissions(
       RequestEthereumPermissionsCallback callback) override;
