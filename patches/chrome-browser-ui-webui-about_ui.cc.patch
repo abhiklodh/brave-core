@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/ui/webui/about_ui.cc b/chrome/browser/ui/webui/about_ui.cc
-index a199e567d216242d41708e68e7b1e0ec18808d76..ac4493c4ddc6e73bb40e8ebb2711189194e881ec 100644
+index ee7fb0d034370939ee0c2be12a0f412c41e5ad9e..03776238fa3d6f1740a2355a1a08dda5f1fb9cf7 100644
 --- a/chrome/browser/ui/webui/about_ui.cc
 +++ b/chrome/browser/ui/webui/about_ui.cc
-@@ -579,6 +579,7 @@ std::string ChromeURLs() {
+@@ -571,6 +571,7 @@ std::string ChromeURLs() {
    html += "</ul>\n";
  
    AppendFooter(&html);
