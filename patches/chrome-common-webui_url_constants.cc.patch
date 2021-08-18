@@ -1,0 +1,12 @@
+diff --cc chrome/common/webui_url_constants.cc
+index 8c48088f9fea5c0c12f9dfce5d4109dee12e5ccf,acabe934cb6c59c340feb23acc8bd08c51edfc38..0000000000000000000000000000000000000000
+--- a/chrome/common/webui_url_constants.cc
++++ b/chrome/common/webui_url_constants.cc
+@@@ -495,6 -484,6 +495,7 @@@ const char kExtensionConfigureCommandsS
+  // Add hosts here to be included in chrome://chrome-urls (about:about).
+  // These hosts will also be suggested by BuiltinProvider.
+  const char* const kChromeHostURLs[] = {
+++    BRAVE_HOST_URLS
+      kChromeUIAboutHost,
+      kChromeUIAccessibilityHost,
+      kChromeUIAutofillInternalsHost,
