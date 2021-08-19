@@ -1145,6 +1145,9 @@ BATClassAdsBridge(BOOL, isDebug, setDebug, g_is_debug)
   callback(/* success */ false, "");
 }
 
+- (void)clearScheduledCaptcha:() {
+}
+
 - (void)getScheduledCaptcha:(const std::string&)payment_id
                    callback:(ads::GetScheduledCaptchaCallback)callback {
 }
