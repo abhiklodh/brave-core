@@ -528,9 +528,13 @@ bool AdsServiceImpl::IsEnabled() const {
   return GetBooleanPref(ads::prefs::kEnabled);
 }
 
+bool AdsServiceImpl::IsBraveNewsEnabled() const {
+  return GetBooleanPref(kBraveTodayOptedIn) &&
+         GetBooleanPref(kNewTabPageShowToday);
+}
+
 bool AdsServiceImpl::ShouldStart() const {
-  return GetBooleanPref(ads::prefs::kEnabled) ||
-         GetBooleanPref(kBraveTodayOptedIn);
+  return IsEnabled() || IsBraveNewsEnabled();
 }
 
 int64_t AdsServiceImpl::GetAdsPerHour() const {
@@ -667,8 +671,8 @@ void AdsServiceImpl::Initialize() {
                           base::Unretained(this)));
 
   profile_pref_change_registrar_.Add(
-      kBraveTodayOptedIn, base::BindRepeating(&AdsServiceImpl::OnPrefsChanged,
-                                              base::Unretained(this)));
+      kNewTabPageShowToday, base::BindRepeating(&AdsServiceImpl::OnPrefsChanged,
+                                                base::Unretained(this)));
 
   MaybeStart(false);
 }
@@ -1792,7 +1796,7 @@ bool AdsServiceImpl::PrefExists(const std::string& path) const {
 }
 
 void AdsServiceImpl::OnPrefsChanged(const std::string& pref) {
-  if (pref == ads::prefs::kEnabled || pref == kBraveTodayOptedIn) {
+  if (pref == ads::prefs::kEnabled || pref == kNewTabPageShowToday) {
     if (pref == ads::prefs::kEnabled) {
       rewards_service_->OnAdsEnabled(IsEnabled());
 
