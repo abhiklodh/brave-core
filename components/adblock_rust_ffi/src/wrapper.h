@@ -5,12 +5,13 @@
 
 #ifndef BRAVE_COMPONENTS_ADBLOCK_RUST_FFI_SRC_WRAPPER_H_
 #define BRAVE_COMPONENTS_ADBLOCK_RUST_FFI_SRC_WRAPPER_H_
+
 #include <memory>
 #include <string>
 #include <vector>
 
 extern "C" {
-#include "lib.h"
+#include "brave/components/adblock_rust_ffi/src/lib.h"
 }
 
 #if defined(ADBLOCK_SHARED_LIBRARY)
@@ -67,7 +68,7 @@ class ADBLOCK_EXPORT FilterList {
 class ADBLOCK_EXPORT Engine {
  public:
   Engine();
-  Engine(const std::string& rules);
+  explicit Engine(const std::string& rules);
   Engine(const char* data, size_t data_size);
   void matches(const std::string& url,
                const std::string& host,
