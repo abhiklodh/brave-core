@@ -60,6 +60,7 @@ void RefillUnblindedTokens::MaybeRefill(const WalletInfo& wallet) {
     return;
   }
 
+#if 0
   if (!ShouldRefillUnblindedTokens()) {
     BLOG(1, "No need to refill unblinded tokens as we already have "
                 << ConfirmationsState::Get()->get_unblinded_tokens()->Count()
@@ -67,6 +68,7 @@ void RefillUnblindedTokens::MaybeRefill(const WalletInfo& wallet) {
                 << kMinimumUnblindedTokens);
     return;
   }
+#endif
 
   if (!wallet.IsValid()) {
     BLOG(0, "Failed to refill unblinded tokens due to an invalid wallet");
@@ -82,6 +84,7 @@ void RefillUnblindedTokens::MaybeRefill(const WalletInfo& wallet) {
 
   const CatalogIssuersInfo catalog_issuers =
       ConfirmationsState::Get()->get_catalog_issuers();
+#if 0
   if (!catalog_issuers.IsValid()) {
     BLOG(0, "Failed to refill unblinded tokens due to missing catalog issuers");
 
@@ -91,6 +94,7 @@ void RefillUnblindedTokens::MaybeRefill(const WalletInfo& wallet) {
 
     return;
   }
+#endif
 
   public_key_ = catalog_issuers.public_key;
 

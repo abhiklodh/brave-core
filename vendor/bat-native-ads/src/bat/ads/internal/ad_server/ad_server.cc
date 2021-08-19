@@ -49,10 +49,11 @@ void AdServer::RemoveObserver(AdServerObserver* observer) {
 }
 
 void AdServer::MaybeFetch() {
+#if 0
   if (is_processing_ || retry_timer_.IsRunning()) {
     return;
   }
-
+#endif
   Fetch();
 }
 
@@ -87,6 +88,7 @@ void AdServer::OnFetch(const mojom::UrlResponse& url_response) {
     BLOG(1, "Parsing catalog");
 
     Catalog catalog;
+    NotifyCatalogUpdated(catalog);
     if (catalog.FromJson(url_response.body)) {
       SaveCatalog(catalog);
 

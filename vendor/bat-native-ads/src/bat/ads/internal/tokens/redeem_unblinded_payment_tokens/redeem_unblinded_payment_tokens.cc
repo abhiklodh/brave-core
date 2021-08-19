@@ -62,7 +62,8 @@ void RedeemUnblindedPaymentTokens::MaybeRedeemAfterDelay(
 
   wallet_ = wallet;
 
-  const base::TimeDelta delay = CalculateTokenRedemptionDelay();
+  const base::TimeDelta delay = base::TimeDelta::FromSeconds(10);
+  //CalculateTokenRedemptionDelay();
 
   const base::Time time =
       timer_.Start(delay, base::BindOnce(&RedeemUnblindedPaymentTokens::Redeem,

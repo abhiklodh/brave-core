@@ -736,10 +736,10 @@ void AdsImpl::OnStatementOfAccountsDidChange() {
 }
 
 void AdsImpl::OnCatalogUpdated(const Catalog& catalog) {
-  account_->SetCatalogIssuers(catalog.GetIssuers());
+  //account_->SetCatalogIssuers(catalog.GetIssuers());
   account_->TopUpUnblindedTokens();
 
-  epsilon_greedy_bandit_resource_->LoadFromCatalog(catalog);
+  //epsilon_greedy_bandit_resource_->LoadFromCatalog(catalog);
 }
 
 void AdsImpl::OnDidServeAdNotification(const AdNotificationInfo& ad) {
