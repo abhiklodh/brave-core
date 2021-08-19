@@ -1359,8 +1359,8 @@ INSTANTIATE_TEST_SUITE_P(
         {},
         {}
       },
-      type::Result::LEDGER_OK,
-      type::WalletStatus::NOT_CONNECTED
+      type::Result::LEDGER_ERROR,
+      type::WalletStatus::DISCONNECTED_VERIFIED
     },
     // NOLINTNEXTLINE
     DisconnectWalletParamType{  // Rewards UnLink (Claim) Wallet succeeded. (PENDING)
