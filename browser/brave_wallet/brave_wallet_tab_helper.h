@@ -10,8 +10,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "content/public/browser/web_contents_user_data.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_types.h"
+#include "content/public/browser/web_contents_user_data.h"
 #include "url/gurl.h"
 
 namespace content {
@@ -33,7 +33,7 @@ class BraveWalletTabHelper
 #if !defined(OS_ANDROID) && !defined(OS_IOS)
   void ShowBubble();
   void RequestUserApproval(const std::string& requestData,
-    RequestEthereumChainCallback callback);
+                           RequestEthereumChainCallback callback);
   void UserRequestCompleted(const std::string& requestData,
                             const std::string& result);
   void CloseBubble();

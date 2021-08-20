@@ -6,8 +6,8 @@
 #include "brave/browser/brave_wallet/brave_wallet_tab_helper.h"
 
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "brave/common/webui_url_constants.h"
 #include "brave/components/brave_wallet/browser/ethereum_permission_utils.h"
@@ -36,14 +36,15 @@ void BraveWalletTabHelper::ShowBubble() {
 }
 
 void BraveWalletTabHelper::UserRequestCompleted(const std::string& requestData,
-    const std::string& result) {
+                                                const std::string& result) {
   size_t hash = base::FastHash(base::as_bytes(base::make_span(requestData)));
   DCHECK(request_callbacks_.count(hash));
   std::move(request_callbacks_[hash]).Run(result);
   request_callbacks_.erase(hash);
 }
 
-void BraveWalletTabHelper::RequestUserApproval(const std::string& requestData,
+void BraveWalletTabHelper::RequestUserApproval(
+    const std::string& requestData,
     RequestEthereumChainCallback callback) {
   std::string requesting_origin;
   std::vector<std::string> accounts;

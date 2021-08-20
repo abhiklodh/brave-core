@@ -77,7 +77,8 @@ GURL GetKnownNetworkURL(const std::string& chain_id) {
   } else {
     return GURL();
   }
-  return GURL(base::StringPrintf(GetUseStagingInfuraEndpoint()
+  return GURL(
+      base::StringPrintf(GetUseStagingInfuraEndpoint()
                              ? "https://%s-staging-infura.bravesoftware.com/%s"
                              : "https://%s-infura.brave.com/%s",
                          subdomain.c_str(), GetInfuraProjectID().c_str()));
@@ -114,16 +115,11 @@ brave_wallet::EthereumChain GetKnownNetwork(const std::string& chain_id) {
 brave_wallet::mojom::EthereumChainPtr CreateEthereumChainPtr(
     const brave_wallet::EthereumChain& mainnet) {
   auto eth_chain_currency = brave_wallet::mojom::NativeCurrency::New(
-    mainnet.currency.symbol,
-    mainnet.currency.name,
-    mainnet.currency.decimals);
+      mainnet.currency.symbol, mainnet.currency.name,
+      mainnet.currency.decimals);
   return  brave_wallet::mojom::EthereumChain::New(
-    mainnet.chain_id,
-    mainnet.chain_name,
-    mainnet.block_explorer_urls,
-    mainnet.icon_urls,
-    mainnet.rpc_urls,
-    std::move(eth_chain_currency));
+      mainnet.chain_id, mainnet.chain_name, mainnet.block_explorer_urls,
+      mainnet.icon_urls, mainnet.rpc_urls, std::move(eth_chain_currency));
 }
 
 void GetCustomChains(PrefService* prefs,
@@ -222,18 +218,17 @@ void EthJsonRpcController::GetBlockTrackerUrl(
 
 void EthJsonRpcController::GetAllNetworks(
     mojom::EthJsonRpcController::GetAllNetworksCallback callback) {
-
   std::vector<mojom::EthereumChainPtr> chains;
   chains.push_back(
-    CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kMainnet)));
+      CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kMainnet)));
   chains.push_back(
-    CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kRinkeby)));
+      CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kRinkeby)));
   chains.push_back(
-    CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kGoerli)));
+      CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kGoerli)));
   chains.push_back(
-    CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kKovan)));
+      CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kKovan)));
   chains.push_back(
-    CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kLocalhost)));
+      CreateEthereumChainPtr(GetKnownNetwork(brave_wallet::mojom::kLocalhost)));
 
   std::vector<EthereumChain> custom_chains;
   GetCustomChains(prefs_, &custom_chains);
@@ -539,8 +534,7 @@ void EthJsonRpcController::OnUnstoppableDomainsProxyReaderGetMany(
   std::move(callback).Run(true, result);
 }
 
-GURL EthJsonRpcController::GetBlockTrackerUrlFromNetwork(
-    std::string chain_id) {
+GURL EthJsonRpcController::GetBlockTrackerUrlFromNetwork(std::string chain_id) {
   GURL url;
   if (chain_id == brave_wallet::mojom::kMainnet) {
     url = GURL("https://etherscan.io");

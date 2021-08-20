@@ -259,9 +259,9 @@ std::string EthTxStateManager::GetNetworkId() const {
   } else if (chain_id_ == brave_wallet::mojom::kGoerli) {
     id = "goerli";
   } else if (chain_id_ == brave_wallet::mojom::kKovan) {
-      id = "kovan";
+    id = "kovan";
   } else if (chain_id_ == brave_wallet::mojom::kLocalhost) {
-      id = network_url_;
+    id = network_url_;
   }
 
   return id;
@@ -302,9 +302,9 @@ void EthTxStateManager::OnGetNetworkUrl(const std::string& url) {
 }
 
 void EthTxStateManager::OnGetChainId(const std::string& chain_id) {
-    chain_id_ = chain_id;
-    rpc_controller_->GetNetworkUrl(base::BindOnce(
-        &EthTxStateManager::OnGetNetworkUrl, weak_factory_.GetWeakPtr()));
+  chain_id_ = chain_id;
+  rpc_controller_->GetNetworkUrl(base::BindOnce(
+      &EthTxStateManager::OnGetNetworkUrl, weak_factory_.GetWeakPtr()));
 }
 
 }  // namespace brave_wallet

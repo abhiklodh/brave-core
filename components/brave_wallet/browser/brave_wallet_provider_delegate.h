@@ -26,9 +26,8 @@ class BraveWalletProviderDelegate {
       delete;
   virtual ~BraveWalletProviderDelegate() = default;
 
-  virtual void RequestUserApproval(
-      const std::string& requestData,
-      RequestEthereumChainCallback callback) = 0;
+  virtual void RequestUserApproval(const std::string& requestData,
+                                   RequestEthereumChainCallback callback) = 0;
 
   virtual void RequestEthereumPermissions(
       RequestEthereumPermissionsCallback callback) = 0;

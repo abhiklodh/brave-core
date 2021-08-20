@@ -80,7 +80,7 @@ void BraveWalletProviderDelegateImpl::RequestUserApproval(
     const std::string& requestData,
     RequestEthereumChainCallback callback) {
   brave_wallet::BraveWalletTabHelper::FromWebContents(web_contents_)
-        ->RequestUserApproval(requestData, std::move(callback));
+      ->RequestUserApproval(requestData, std::move(callback));
 }
 
 void BraveWalletProviderDelegateImpl::RequestEthereumPermissions(

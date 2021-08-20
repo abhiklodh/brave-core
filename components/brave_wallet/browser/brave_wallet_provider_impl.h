@@ -54,8 +54,7 @@ class BraveWalletProviderImpl final
  private:
   bool OnAddEthereumChainRequest(const std::string& json_payload,
                                  RequestCallback callback);
-  void OnChainAddedResult(RequestCallback callback,
-                const std::string& result);
+  void OnChainAddedResult(RequestCallback callback, const std::string& result);
   void OnConnectionError();
 
   std::unique_ptr<BraveWalletProviderDelegate> delegate_;

@@ -19,7 +19,7 @@
 #include "content/public/browser/web_contents.h"
 
 namespace {
-  const char kRejectedResponse[] = R"(
+const char kRejectedResponse[] = R"(
     "error": {
     "code": 4001,
     "message": "The user rejected the request."
@@ -63,7 +63,7 @@ void WalletPanelHandler::AddEthereumChainApproved(const std::string& payload,
     list->Append(std::move(value).value_or(base::Value()));
   }
   brave_wallet::BraveWalletTabHelper::FromWebContents(contents)
-        ->UserRequestCompleted(payload, std::string());
+    ->UserRequestCompleted(payload, std::string());
 }
 
 void WalletPanelHandler::AddEthereumChainCanceled(const std::string& payload,
@@ -72,7 +72,7 @@ void WalletPanelHandler::AddEthereumChainCanceled(const std::string& payload,
   if (!contents)
     return;
   brave_wallet::BraveWalletTabHelper::FromWebContents(contents)
-        ->UserRequestCompleted(payload, kRejectedResponse);
+    ->UserRequestCompleted(payload, kRejectedResponse);
 }
 
 void WalletPanelHandler::ConnectToSite(const std::vector<std::string>& accounts,

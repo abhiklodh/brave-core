@@ -34,7 +34,8 @@ bool ParseSingleStringResult(const std::string& json, std::string* result) {
 
 namespace brave_wallet {
 
-bool ParsePayload(const std::string& json, const std::string& path,
+bool ParsePayload(const std::string& json,
+                  const std::string& path,
                   base::Value* result) {
   DCHECK(result);
   base::JSONReader::ValueWithError value_with_error =

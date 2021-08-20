@@ -7,8 +7,8 @@
 
 #include <utility>
 
-#include "base/strings/stringprintf.h"
 #include "base/json/json_writer.h"
+#include "base/strings/stringprintf.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_provider_delegate.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
 #include "brave/components/brave_wallet/browser/eth_json_rpc_controller.h"
@@ -35,7 +35,8 @@ BraveWalletProviderImpl::BraveWalletProviderImpl(
 BraveWalletProviderImpl::~BraveWalletProviderImpl() {}
 
 bool BraveWalletProviderImpl::OnAddEthereumChainRequest(
-    const std::string& json_payload, RequestCallback callback) {
+    const std::string& json_payload,
+    RequestCallback callback) {
   if (!delegate_)
     return false;
   base::Value payload;
@@ -49,7 +50,8 @@ bool BraveWalletProviderImpl::OnAddEthereumChainRequest(
   std::string chainJson;
   if (!base::JSONWriter::Write(valueValue, &chainJson))
     return false;
-  delegate_->RequestUserApproval(chainJson,
+  delegate_->RequestUserApproval(
+      chainJson,
       base::BindOnce(&BraveWalletProviderImpl::OnChainAddedResult,
                      weak_factory_.GetWeakPtr(), std::move(callback)));
   return true;
@@ -128,7 +130,7 @@ void BraveWalletProviderImpl::OnConnectionError() {
 }
 
 void BraveWalletProviderImpl::OnChainAddedResult(RequestCallback callback,
-    const std::string& error) {
+                                                 const std::string& error) {
   base::flat_map<std::string, std::string> headers;
   std::string value = R"("result" : null)";
   if (!error.empty()) {
