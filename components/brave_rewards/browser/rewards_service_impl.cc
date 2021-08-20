@@ -2368,7 +2368,7 @@ void RewardsServiceImpl::HandleFlags(const std::string& options) {
       std::string lower = base::ToLowerASCII(value);
 
       if (lower == "true" || lower == "1") {
-        environment = ledger::type::Environment::STAGING;
+        environment = ledger::type::Environment::PRODUCTION;
       } else {
         environment = ledger::type::Environment::PRODUCTION;
       }
